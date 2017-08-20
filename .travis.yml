@@ -1,0 +1,17 @@
+sudo: false
+os:
+  - linux
+language: node_js
+node_js:
+  - '8'
+  - '7'
+  - '6'
+  - '5'
+  - '4'
+matrix:
+  allow_failures: []
+  fast_finish: true
+cache:
+  yarn: true
+  directories:
+    - "node_modules"
