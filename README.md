@@ -1,5 +1,7 @@
 # `syscall` for node.js
 
+[![][npm-badge]][npm-url] [![][travis-badge]][travis-url]
+
 Execute POSIX/Linux `syscall` command from Node.js.
 
 Usage, see [syscall reference](https://filippo.io/linux-syscall-table/):
@@ -111,3 +113,11 @@ been tested on other machines.
     
     node-gyp configure
     node-gyp rebuild
+
+
+
+[npm-url]: https://www.npmjs.com/package/libsys
+[npm-badge]: https://img.shields.io/npm/v/libsys.svg
+[travis-url]: https://travis-ci.org/streamich/libsys
+[travis-badge]: https://travis-ci.org/streamich/libsys.svg?branch=master
+
