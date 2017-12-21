@@ -29,6 +29,7 @@
     "@types/node": "^8.0.24"
   },
   "scripts": {
-    "test": "mocha test/**/*.test.js"
+    "test": "mocha test/**/*.test.js",
+    "build": "node-gyp configure && node-gyp rebuild"
   }
 }

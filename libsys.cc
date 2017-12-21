@@ -1,5 +1,5 @@
 #include <iostream>
-#include <syscall.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
