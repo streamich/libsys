@@ -7,7 +7,8 @@ describe('libsys', function() {
         it('Writes buffer to STDOUT', function() {
             var str = 'Hello world, hell yeah!';
             var buf = new Buffer(str + '\n');
-            var res = addon.syscall(1, 1, buf, buf.length);
+            var SYS_write = process.platform === 'linux' ? 1 : 4;
+            var res = addon.syscall(SYS_write, 1, buf, buf.length);
             expect(res).to.equal(buf.length);
         });
     });
