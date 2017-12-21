@@ -4,20 +4,26 @@
 
 Execute POSIX/Linux `syscall` command from Node.js.
 
-Usage, see [syscall reference](https://filippo.io/linux-syscall-table/):
+## Installation
+
+    npm i libsys
+
+Compiles on Linux, Mac and Windows in WSL process.
+
+## Usage
+
+See
+
+  - [Linux syscalls](https://filippo.io/linux-syscall-table/)
+  - [Mac syscalls](https://opensource.apple.com/source/xnu/xnu-1504.3.12/bsd/kern/syscalls.master)
 
 ```js
 var syscall = require('libsys').syscall;
 
 // Print `Hello world` in console using kernel's `syscall` command.
+var SYS_write = process.platform === 'darwin';
 var buf = new Buffer('Hello world\n');
-syscall(1, 1, buf, buf.length);
-
-// Where, on x86_64 Linux:
-// 1 - `sys_write` system call
-// 1 - STDOUT file descriptor
-// buf - pointer to data in memory
-// buf.length - size of the memory block to print
+syscall(SYS_write, 1, buf, buf.length);
 ```
 
 See [libjs](http://www.npmjs.com/package/libjs) for POSIX command implementation.
@@ -35,11 +41,11 @@ syscall64(command: number, ...args: TArg[]): [number, number];
 
 `syscall` accepts up to 6 command arguments `args`. See discussion on *Arguments*
 below to see how JavaScript objects are converted to 64-bit integers.
-    
+
 `syscall` returns a `number` which is the result returned by the kernel,
 negative numbers usually represent an error. If sytem call returns -1, the
 C `errno` variable will be returned, which usually has more information about the error.
-    
+
 ### `errno`
 
 Returns `errno` variable.
@@ -47,7 +53,7 @@ Returns `errno` variable.
 ```ts
 function errno(): number;
 ```
-  
+
 ### `malloc`
 
 `malloc` returns an `ArrayBuffer` object of size `size` that is mapped to memory location
@@ -65,7 +71,7 @@ Return memory address of `Buffer`'s data contents.
 addressBuffer(buffer: Buffer): number;
 addressBuffer64(buffer: Buffer): [number, number];
 ```
-    
+
 `addr64` returns a tuple which represents 64-bit number, where first element contains the lower
 32 bits and second element has the high 32 bits.
 
@@ -87,7 +93,7 @@ Up to ten arguments in arguments array supported.
 ```ts
 call(addr: Targ, offset: number = 0, args?: number[]);
 ```
-  
+
 ### Arguments
 
 ```ts
@@ -101,19 +107,14 @@ Different JavaScript objects can be used as C arguments. Here is how they are co
  - `[number, number, number]` treated as a `[lo, hi, offset]` tuple, same as above with the difference that `offset` is added to the resulting 64-bit integer;
  - `string` gets converted to C null-terminated string and 64-bit pointer created to the beginning of that string;
  - `ArrayBuffer`, `TypedArray`, `Buffer` 64-bit pointer to the beginning of data contents of those objects is created;
-  
-## Installation
 
-    npm i libsys
-    
-Compiles on Ubuntu 14.04 x86_64 running under Docker with Node.js 4.4.3, has not
-been tested on other machines.
-    
 ## Building addon:
-    
-    node-gyp configure
-    node-gyp rebuild
 
+    npm run build
+
+## License
+
+[Unlicense](./LICENSE) - public domain.
 
 
 [npm-url]: https://www.npmjs.com/package/libsys
