@@ -1,6 +1,4 @@
 #include <iostream>
-#include <sys/syscall.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <node.h>
@@ -93,7 +91,7 @@ namespace jskernel {
 
         int64_t cmd = (uint64_t) args[0]->Int32Value();
         if(len == 1) {
-            int64_t res = syscall(cmd);
+            int64_t res = syscall0(cmd);
             // Fix the `errno` returned
             // http://yarchive.net/comp/linux/errno.html
             return res == -1 ? -errno : res;
@@ -101,13 +99,13 @@ namespace jskernel {
 
         int64_t arg1 = ArgToInt(args[1]);
         if(len == 2) {
-            int64_t res = syscall(cmd, arg1);
+            int64_t res = syscall1(cmd, arg1);
             return res == -1 ? -errno : res;
         }
 
         int64_t arg2 = ArgToInt(args[2]);
         if(len == 3) {
-            int64_t res = syscall(cmd, arg1, arg2);
+            int64_t res = syscall2(cmd, arg1, arg2);
             return res == -1 ? -errno : res;
         }
 
@@ -119,13 +117,13 @@ namespace jskernel {
 
         int64_t arg4 = ArgToInt(args[4]);
         if(len == 5) {
-             int64_t res = syscall(cmd, arg1, arg2, arg3, arg4);
+             int64_t res = syscall4(cmd, arg1, arg2, arg3, arg4);
              return res == -1 ? -errno : res;
          }
 
         int64_t arg5 = ArgToInt(args[5]);
         if(len == 6) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3, arg4, arg5);
+            int64_t res = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
             return res == -1 ? -errno : res;
         }
 

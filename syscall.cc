@@ -1,7 +1,8 @@
+#include <sys/types.h>
 #include "syscall.h"
 
-inline long syscall6(long num, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
-    long result;
+inline int64_t syscall6(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "movq %5, %%r10;\n"
@@ -16,8 +17,8 @@ inline long syscall6(long num, long arg1, long arg2, long arg3, long arg4, long 
     return result;
 }
 
-inline long syscall5(long num, long arg1, long arg2, long arg3, long arg4, long arg5) {
-    long result;
+inline int64_t syscall5(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "movq %5, %%r10;\n"
@@ -31,8 +32,8 @@ inline long syscall5(long num, long arg1, long arg2, long arg3, long arg4, long 
     return result;
 }
 
-inline long syscall4(long num, long arg1, long arg2, long arg3, long arg4) {
-    long result;
+inline int64_t syscall4(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "movq %5, %%r10;\n"
@@ -45,8 +46,8 @@ inline long syscall4(long num, long arg1, long arg2, long arg3, long arg4) {
     return result;
 }
 
-inline long syscall3(long num, long arg1, long arg2, long arg3) {
-    long result;
+inline int64_t syscall3(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "syscall"
@@ -58,8 +59,8 @@ inline long syscall3(long num, long arg1, long arg2, long arg3) {
     return result;
 }
 
-inline long syscall2(long num, long arg1, long arg2) {
-    long result;
+inline int64_t syscall2(int64_t num, int64_t arg1, int64_t arg2) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "syscall"
@@ -71,8 +72,8 @@ inline long syscall2(long num, long arg1, long arg2) {
     return result;
 }
 
-inline long syscall1(long num, long arg1) {
-    long result;
+inline int64_t syscall1(int64_t num, int64_t arg1) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "syscall"
@@ -84,8 +85,8 @@ inline long syscall1(long num, long arg1) {
     return result;
 }
 
-inline long syscall0(long num) {
-    long result;
+inline int64_t syscall0(int64_t num) {
+    int64_t result;
 
     __asm__ __volatile__ (
         "syscall"
