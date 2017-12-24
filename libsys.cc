@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include "syscall.h"
+#include "syscall.cc"
 
 namespace jskernel {
 
@@ -113,7 +113,7 @@ namespace jskernel {
 
         int64_t arg3 = ArgToInt(args[3]);
         if(len == 4) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3);
+            int64_t res = syscall3(cmd, arg1, arg2, arg3);
             return res == -1 ? -errno : res;
         }
 
@@ -131,7 +131,7 @@ namespace jskernel {
 
         int64_t arg6 = ArgToInt(args[6]);
         if(len == 7) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+            int64_t res = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
             return res == -1 ? -errno : res;
         }
 

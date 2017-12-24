@@ -1,3 +1,5 @@
+#include "syscall.h"
+
 inline long syscall6(long num, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
     long result;
 

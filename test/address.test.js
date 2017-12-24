@@ -3,7 +3,7 @@ const rax = require('ass-js/lib/x86/operand').rax;
 const Code = require('ass-js/lib/x86/x64/code').Code;
 
 const isMac = process.platform === 'darwin';
-const SYS_mmap = isMac ? (0x2000000 + 197) : 9;
+const SYS_mmap = isMac ? 197 : 9;
 
 // Allocate executable memory, returns `ArrayBuffer`.
 function alloc(size) {
@@ -13,23 +13,15 @@ function alloc(size) {
   return addon.malloc(addr, size);
 }
 
-describe('libsys', function() {
-    describe('.call()', function () {
-        it('calls executable code', () => {
-            var _ = new Code;
-
-            _._('mov', [rax, 0xBABE]);
-            _._('ret');
-
-            const code = _.compile();
-            const ab = alloc(code.length);
-            const uint8 = new Uint8Array(ab);
-
-            for (let i = 0; i < code.length; i++) uint8[i] = code[i];
-
-            const result = addon.call(ab, 0, []);
-
-            expect(result).toBe(0xBABE);
+describe('address', function() {
+    describe('.addressArrayBuffer64()', function() {
+        it('Returns 2-tuple representing a pointer', function() {
+            var ab = new ArrayBuffer(10);
+            var tuple = addon.addressArrayBuffer64(ab);
+            expect(Array.isArray(tuple)).toBe(true);
+            expect(tuple.length).toBe(2);
+            expect(typeof tuple[0]).toBe('number');
+            expect(typeof tuple[1]).toBe('number');
         });
     });
 });

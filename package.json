@@ -25,13 +25,12 @@
   "gypfile": true,
   "devDependencies": {
     "@types/node": "^8.0.24",
-    "mocha": "3.4.2",
-    "chai": "4.1.0",
+    "jest": "^22.0.4",
     "semantic-release": "^11.0.2",
     "ass-js": "^1.0.6"
   },
   "scripts": {
-    "test": "mocha test/**/*.test.js",
+    "test": "jest",
     "build": "node-gyp configure && node-gyp rebuild",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   }
