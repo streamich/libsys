@@ -357,7 +357,7 @@ namespace libsys {
     typedef number (*callback9)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9);
     typedef number (*callback10)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9, number arg10);
 
-    void MethodCall(const FunctionCallbackInfo<Value>& args) {
+    int64_t call_method(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
         uint64_t addr = ArgToInt(args[0]);
@@ -370,8 +370,7 @@ namespace libsys {
         }
 
         if(len <= 2) {
-            args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-            return;
+            return ((callback) addr)();
         }
 
         Local<Array> arr = args[2].As<Array>();
@@ -379,66 +378,64 @@ namespace libsys {
 
         switch(arrlen) {
             case 0:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-                break;
+                return ((callback) addr)();
             case 1:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback1) addr)(
-                    ArgToInt(arr->Get(0))
-                    )));
-                break;
+                return ((callback1) addr)(ArgToInt(arr->Get(0)));
             case 2:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback2) addr)(
+                return ((callback2) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1))
-                    )));
-                break;
+                );
             case 3:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback3) addr)(
+                return ((callback3) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2))
-                    )));
-                break;
+                );
             case 4:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback4) addr)(
+                return ((callback4) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3))
-                    )));
-                break;
+                );
             case 5:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback5) addr)(
+                return ((callback5) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4))
-                    )));
-                break;
+                );
             case 6:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback6) addr)(
+                return ((callback6) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5))
-                    )));
-                break;
+                );
             case 7:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback7) addr)(
+                ((callback7) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6))
-                    )));
-                break;
+                );
             case 8:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback8) addr)(
+                return ((callback8) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7))
-                    )));
-                break;
+                );
             case 9:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback9) addr)(
+                return ((callback9) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8))
-                    )));
-                break;
+                );
             case 10:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback10) addr)(
+                ((callback10) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8)), ArgToInt(arr->Get(9))
-                    )));
-                break;
+                );
             default:
                 isolate->ThrowException(String::NewFromUtf8(isolate, "Too many arguments."));
+                return -1;
         }
+    }
+
+    void MethodCall(const FunctionCallbackInfo<Value>& args) {
+        int64_t result = call_method(args);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodCall64(const FunctionCallbackInfo<Value>& args) {
+        int64_t result = call_method(args);
+        V8_RETURN_NUM64(result);
     }
 
     void init(Local<Object> exports) {
@@ -467,7 +464,7 @@ namespace libsys {
         NODE_SET_METHOD(exports, "addressBuffer64",         MethodAddrBuffer64);
         NODE_SET_METHOD(exports, "frame",                   MethodFrame);
         NODE_SET_METHOD(exports, "call",                    MethodCall);
-//        NODE_SET_METHOD(exports, "call64",                  MethodCall64);
+        NODE_SET_METHOD(exports, "call64",                  MethodCall64);
     }
 
     NODE_MODULE(addon, init)
