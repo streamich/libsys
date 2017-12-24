@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-
+#include "syscall.h"
 
 namespace jskernel {
 
