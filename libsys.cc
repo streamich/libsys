@@ -438,6 +438,32 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void MethodCall_0(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t result = ((callback) addr)();
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodCall64_0(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t result = ((callback) addr)();
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodCall_1(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t arg1 = ArgToInt(args[1]);
+        int64_t result = ((callback1) addr)(arg1);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodCall64_1(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t arg1 = ArgToInt(args[1]);
+        int64_t result = ((callback1) addr)(arg1);
+        V8_RETURN_NUM64(result);
+    }
+
     void init(Local<Object> exports) {
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
@@ -465,6 +491,10 @@ namespace libsys {
         NODE_SET_METHOD(exports, "frame",                   MethodFrame);
         NODE_SET_METHOD(exports, "call",                    MethodCall);
         NODE_SET_METHOD(exports, "call64",                  MethodCall64);
+        NODE_SET_METHOD(exports, "call_0",                  MethodCall_0);
+        NODE_SET_METHOD(exports, "call_1",                  MethodCall_1);
+        NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
+        NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
     }
 
     NODE_MODULE(addon, init)

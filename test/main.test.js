@@ -20,7 +20,12 @@ describe('libsys', function() {
         expect(typeof addon.syscall64_6).toBe('function');
 
         expect(typeof addon.frame).toBe('function');
+
         expect(typeof addon.call).toBe('function');
         expect(typeof addon.call64).toBe('function');
+        expect(typeof addon.call_0).toBe('function');
+        expect(typeof addon.call_1).toBe('function');
+        expect(typeof addon.call64_0).toBe('function');
+        expect(typeof addon.call64_1).toBe('function');
     });
 });
