@@ -16,8 +16,9 @@ function alloc(size) {
 describe('address', function() {
     describe('.addressArrayBuffer64()', function() {
         it('Returns 2-tuple representing a pointer', function() {
-            var ab = new ArrayBuffer(10);
-            var tuple = addon.addressArrayBuffer64(ab);
+            const ab = new ArrayBuffer(10);
+            const tuple = addon.addressArrayBuffer64(ab);
+
             expect(Array.isArray(tuple)).toBe(true);
             expect(tuple.length).toBe(2);
             expect(typeof tuple[0]).toBe('number');
