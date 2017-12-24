@@ -9,7 +9,7 @@
 #include <errno.h>
 #include "syscall.cc"
 
-namespace jskernel {
+namespace libsys {
 
     using v8::FunctionCallbackInfo;
     using v8::Isolate;
@@ -164,6 +164,13 @@ namespace jskernel {
 //            std::cout << "syscall: " << result << std::endl;
             args.GetReturnValue().Set(Int64ToArray(isolate, result));
         }
+    }
+
+    void MethodSyscall0(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int64_t cmd = (uint64_t) args[0]->Int32Value();
+        int64_t result = syscall0(cmd);
+        args.GetReturnValue().Set(Integer::New(isolate, result));
     }
 
     void MethodAddrArrayBuffer(const FunctionCallbackInfo<Value>& args) {
@@ -425,6 +432,7 @@ namespace jskernel {
     void init(Local<Object> exports) {
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
+        NODE_SET_METHOD(exports, "syscall0",                MethodSyscall0);
         NODE_SET_METHOD(exports, "errno",                   MethodErrno);
         NODE_SET_METHOD(exports, "addressArrayBuffer",      MethodAddrArrayBuffer);
         NODE_SET_METHOD(exports, "addressArrayBuffer64",    MethodAddrArrayBuffer64);

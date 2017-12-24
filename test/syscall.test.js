@@ -13,12 +13,24 @@ function alloc(size) {
   return addon.malloc(addr, size);
 }
 
-describe('.syscall()', function() {
-    it('Writes buffer to STDOUT', function() {
-        var str = 'Hello world, hell yeah!';
-        var buf = new Buffer(str + '\n');
-        var SYS_write = process.platform === 'linux' ? 1 : 0x2000004;
-        var res = addon.syscall(SYS_write, 1, buf, buf.length);
-        expect(res).toBe(buf.length);
+describe('syscall', function() {
+    describe('.syscall()', function() {
+        it('Writes buffer to STDOUT', function() {
+            var str = 'Hello world, hell yeah!';
+            var buf = new Buffer(str + '\n');
+            var SYS_write = isMac ? 0x2000004 : 1;
+            var res = addon.syscall(SYS_write, 1, buf, buf.length);
+
+            expect(res).toBe(buf.length);
+        });
+    });
+
+    describe('.syscall0()', () => {
+        it('gets correct process ID', () => {
+            const SYS_getpid = isMac ? (0x2000000 + 20) : 39;
+            const res = addon.syscall0(SYS_getpid);
+
+            expect(res).toBe(process.pid);
+        });
     });
 });
