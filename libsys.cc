@@ -1,6 +1,4 @@
 #include <iostream>
-#include <sys/syscall.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <node.h>
@@ -9,9 +7,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include "syscall/syscall.cc"
 
+#define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
+#define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), result));
 
-namespace jskernel {
+namespace libsys {
 
     using v8::FunctionCallbackInfo;
     using v8::Isolate;
@@ -50,6 +51,7 @@ namespace jskernel {
         return (uint64_t)(ab_c.Data()) + ta->ByteOffset();
     }
 
+    // Transfrom different JavaScript objects to 64-bit integer.
     int64_t ArgToInt(Local<Value> arg) {
         if(arg->IsNumber()) {
             return (int64_t) arg->Int32Value();
@@ -93,46 +95,37 @@ namespace jskernel {
 
         int64_t cmd = (uint64_t) args[0]->Int32Value();
         if(len == 1) {
-            int64_t res = syscall(cmd);
-            // Fix the `errno` returned
-            // http://yarchive.net/comp/linux/errno.html
-            return res == -1 ? -errno : res;
+            return syscall0(cmd);
         }
 
         int64_t arg1 = ArgToInt(args[1]);
         if(len == 2) {
-            int64_t res = syscall(cmd, arg1);
-            return res == -1 ? -errno : res;
+            return syscall1(cmd, arg1);
         }
 
         int64_t arg2 = ArgToInt(args[2]);
         if(len == 3) {
-            int64_t res = syscall(cmd, arg1, arg2);
-            return res == -1 ? -errno : res;
+            return syscall2(cmd, arg1, arg2);
         }
 
         int64_t arg3 = ArgToInt(args[3]);
         if(len == 4) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3);
-            return res == -1 ? -errno : res;
+            return syscall3(cmd, arg1, arg2, arg3);
         }
 
         int64_t arg4 = ArgToInt(args[4]);
         if(len == 5) {
-             int64_t res = syscall(cmd, arg1, arg2, arg3, arg4);
-             return res == -1 ? -errno : res;
+             return syscall4(cmd, arg1, arg2, arg3, arg4);
          }
 
         int64_t arg5 = ArgToInt(args[5]);
         if(len == 6) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3, arg4, arg5);
-            return res == -1 ? -errno : res;
+            return syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
         }
 
         int64_t arg6 = ArgToInt(args[6]);
         if(len == 7) {
-            int64_t res = syscall(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
-            return res == -1 ? -errno : res;
+            return syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         }
 
         return -1;
@@ -148,9 +141,6 @@ namespace jskernel {
     Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
         int32_t lo = number & 0xffffffff;
         int32_t hi = number >> 32;
-
-//        std::cout << "split: " << lo << ", " << hi << std::cout;
-
         Handle<Array> array = Array::New(isolate, 2);
         array->Set(0, Integer::New(isolate, lo));
         array->Set(1, Integer::New(isolate, hi));
@@ -163,9 +153,134 @@ namespace jskernel {
         if(len > 7) isolate->ThrowException(String::NewFromUtf8(isolate, "Syscall with over 6 arguments."));
         else {
             int64_t result = ExecSyscall(args);
-//            std::cout << "syscall: " << result << std::endl;
             args.GetReturnValue().Set(Int64ToArray(isolate, result));
         }
+    }
+
+    void MethodSyscall_0(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t result = syscall0(cmd);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_0(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t result = syscall0(cmd);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_1(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t result = syscall1(cmd, arg1);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_1(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t result = syscall1(cmd, arg1);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_2(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t result = syscall2(cmd, arg1, arg2);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_2(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t result = syscall2(cmd, arg1, arg2);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_3(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_3(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_4(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_4(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_5(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_5(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodSyscall_6(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t arg6 = (int64_t) args[6]->Int32Value();
+        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodSyscall64_6(const FunctionCallbackInfo<Value>& args) {
+        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t arg6 = (int64_t) args[6]->Int32Value();
+        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        V8_RETURN_NUM64(result);
     }
 
     void MethodAddrArrayBuffer(const FunctionCallbackInfo<Value>& args) {
@@ -208,7 +323,7 @@ namespace jskernel {
         args.GetReturnValue().Set(Int64ToArray(isolate, addr));
     }
 
-    void MethodMalloc(const FunctionCallbackInfo<Value>& args) {
+    void MethodFrame(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
         void* addr = (void*) ArgToInt(args[0]);
@@ -216,11 +331,6 @@ namespace jskernel {
 
         Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, addr, size);
         args.GetReturnValue().Set(buf);
-    }
-
-    void MethodErrno(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        args.GetReturnValue().Set(Integer::New(isolate, errno));
     }
 
     typedef int64_t number; // JavaScript number.
@@ -236,8 +346,7 @@ namespace jskernel {
     typedef number (*callback9)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9);
     typedef number (*callback10)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9, number arg10);
 
-
-    void MethodCall(const FunctionCallbackInfo<Value>& args) {
+    int64_t call_method(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
         uint64_t addr = ArgToInt(args[0]);
@@ -250,8 +359,7 @@ namespace jskernel {
         }
 
         if(len <= 2) {
-            args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-            return;
+            return ((callback) addr)();
         }
 
         Local<Array> arr = args[2].As<Array>();
@@ -259,187 +367,122 @@ namespace jskernel {
 
         switch(arrlen) {
             case 0:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-                break;
+                return ((callback) addr)();
             case 1:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback1) addr)(
-                    ArgToInt(arr->Get(0))
-                    )));
-                break;
+                return ((callback1) addr)(ArgToInt(arr->Get(0)));
             case 2:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback2) addr)(
+                return ((callback2) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1))
-                    )));
-                break;
+                );
             case 3:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback3) addr)(
+                return ((callback3) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2))
-                    )));
-                break;
+                );
             case 4:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback4) addr)(
+                return ((callback4) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3))
-                    )));
-                break;
+                );
             case 5:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback5) addr)(
+                return ((callback5) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4))
-                    )));
-                break;
+                );
             case 6:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback6) addr)(
+                return ((callback6) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5))
-                    )));
-                break;
+                );
             case 7:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback7) addr)(
+                return ((callback7) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6))
-                    )));
-                break;
+                );
             case 8:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback8) addr)(
+                return ((callback8) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7))
-                    )));
-                break;
+                );
             case 9:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback9) addr)(
+                return ((callback9) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8))
-                    )));
-                break;
+                );
             case 10:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback10) addr)(
+                return ((callback10) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8)), ArgToInt(arr->Get(9))
-                    )));
-                break;
+                );
             default:
                 isolate->ThrowException(String::NewFromUtf8(isolate, "Too many arguments."));
+                return -1;
         }
     }
 
-/*
+    void MethodCall(const FunctionCallbackInfo<Value>& args) {
+        int64_t result = call_method(args);
+        V8_RETURN_NUM(result);
+    }
+
     void MethodCall64(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-
-        int32_t lo = (int32_t) args[0]->Int32Value();
-        int32_t hi = (int32_t) args[1]->Int32Value();
-        int64_t addr = (((int64_t) hi) << 32) | ((int64_t) lo & 0xffffffff);
-        uint64_t offset = (uint64_t) args[2]->Int32Value();
-        addr += offset;
-        char len = (char) args.Length();
-
-        uint64_t offset;
-        if(len > 1) {
-            offset = (uint64_t) args[1]->Int32Value();
-            addr += offset;
-        }
-
-        if(len <= 3) {
-            args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-            return;
-        }
-
-        Local<Array> arr = args[3].As<Array>();
-        uint32_t arrlen = arr->Length();
-
-        switch(arrlen) {
-            case 0:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback) addr)()));
-                break;
-            case 1:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback1) addr)(
-                    ArgToInt(arr->Get(0))
-                    )));
-                break;
-            case 2:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback2) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1))
-                    )));
-                break;
-            case 3:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback3) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2))
-                    )));
-                break;
-            case 4:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback4) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3))
-                    )));
-                break;
-            case 5:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback5) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4))
-                    )));
-                break;
-            case 6:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback6) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5))
-                    )));
-                break;
-            case 7:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback7) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6))
-                    )));
-                break;
-            case 8:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback8) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7))
-                    )));
-                break;
-            case 9:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback9) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8))
-                    )));
-                break;
-            case 10:
-                args.GetReturnValue().Set(Integer::New(isolate, ((callback10) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8)), ArgToInt(arr->Get(9))
-                    )));
-                break;
-            default:
-                isolate->ThrowException(String::NewFromUtf8(isolate, "Too many arguments."));
-        }
+        int64_t result = call_method(args);
+        V8_RETURN_NUM64(result);
     }
-    */
 
-//    void MethodGen(const FunctionCallbackInfo<Value>& args) {
-//        Isolate* isolate = args.GetIsolate();
-//
-//        size_t size = 3;
-//        char* data = (char*) malloc(size);
-//        data[0] = 65;
-//        data[1] = 66;
-//        data[2] = 67;
-//
-//
-//        args.GetReturnValue().Set(Integer::New(isolate, (uint64_t) data));
-//    }
+    void MethodCall_0(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t result = ((callback) addr)();
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodCall64_0(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t result = ((callback) addr)();
+        V8_RETURN_NUM64(result);
+    }
+
+    void MethodCall_1(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t arg1 = ArgToInt(args[1]);
+        int64_t result = ((callback1) addr)(arg1);
+        V8_RETURN_NUM(result);
+    }
+
+    void MethodCall64_1(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = ArgToInt(args[0]);
+        int64_t arg1 = ArgToInt(args[1]);
+        int64_t result = ((callback1) addr)(arg1);
+        V8_RETURN_NUM64(result);
+    }
 
     void init(Local<Object> exports) {
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
-        NODE_SET_METHOD(exports, "errno",                   MethodErrno);
+        NODE_SET_METHOD(exports, "syscall_0",               MethodSyscall_0);
+        NODE_SET_METHOD(exports, "syscall_1",               MethodSyscall_1);
+        NODE_SET_METHOD(exports, "syscall_2",               MethodSyscall_2);
+        NODE_SET_METHOD(exports, "syscall_3",               MethodSyscall_3);
+        NODE_SET_METHOD(exports, "syscall_4",               MethodSyscall_4);
+        NODE_SET_METHOD(exports, "syscall_5",               MethodSyscall_5);
+        NODE_SET_METHOD(exports, "syscall_6",               MethodSyscall_6);
+        NODE_SET_METHOD(exports, "syscall64_0",             MethodSyscall64_0);
+        NODE_SET_METHOD(exports, "syscall64_1",             MethodSyscall64_1);
+        NODE_SET_METHOD(exports, "syscall64_2",             MethodSyscall64_2);
+        NODE_SET_METHOD(exports, "syscall64_3",             MethodSyscall64_3);
+        NODE_SET_METHOD(exports, "syscall64_4",             MethodSyscall64_4);
+        NODE_SET_METHOD(exports, "syscall64_5",             MethodSyscall64_5);
+        NODE_SET_METHOD(exports, "syscall64_6",             MethodSyscall64_6);
         NODE_SET_METHOD(exports, "addressArrayBuffer",      MethodAddrArrayBuffer);
         NODE_SET_METHOD(exports, "addressArrayBuffer64",    MethodAddrArrayBuffer64);
         NODE_SET_METHOD(exports, "addressTypedArray",       MethodAddrTypedArray);
         NODE_SET_METHOD(exports, "addressTypedArray64",     MethodAddrTypedArray64);
         NODE_SET_METHOD(exports, "addressBuffer",           MethodAddrBuffer);
         NODE_SET_METHOD(exports, "addressBuffer64",         MethodAddrBuffer64);
-        NODE_SET_METHOD(exports, "malloc",                  MethodMalloc);
-//        NODE_SET_METHOD(exports, "malloc64",                MethodMalloc64);
+        NODE_SET_METHOD(exports, "frame",                   MethodFrame);
         NODE_SET_METHOD(exports, "call",                    MethodCall);
-//        NODE_SET_METHOD(exports, "call64",                  MethodCall64);
-//        NODE_SET_METHOD(exports, "jump",                  MethodJump);
-//        NODE_SET_METHOD(exports, "gen",                   MethodGen);
+        NODE_SET_METHOD(exports, "call64",                  MethodCall64);
+        NODE_SET_METHOD(exports, "call_0",                  MethodCall_0);
+        NODE_SET_METHOD(exports, "call_1",                  MethodCall_1);
+        NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
+        NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
     }
 
     NODE_MODULE(addon, init)

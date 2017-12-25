@@ -1,25 +1,31 @@
-var addon = require('../build/Release/sys.node');
-var expect = require('chai').expect;
-
+const addon = require('../build/Release/sys.node');
 
 describe('libsys', function() {
-    describe('.syscall()', function() {
-        it('Writes buffer to STDOUT', function() {
-            var str = 'Hello world, hell yeah!';
-            var buf = new Buffer(str + '\n');
-            var SYS_write = process.platform === 'linux' ? 1 : 4;
-            var res = addon.syscall(SYS_write, 1, buf, buf.length);
-            expect(res).to.equal(buf.length);
-        });
-    });
-    describe('.addressArrayBuffer64()', function() {
-        it('Returns 2-tuple representing a pointer', function() {
-            var ab = new ArrayBuffer(10);
-            var tuple = addon.addressArrayBuffer64(ab);
-            expect(tuple instanceof Array).to.equal(true);
-            expect(tuple.length).to.equal(2);
-            expect(typeof tuple[0]).to.equal('number');
-            expect(typeof tuple[1]).to.equal('number');
-        });
+    it('returns expected API', () => {
+        expect(typeof addon.syscall).toBe('function');
+        expect(typeof addon.syscall64).toBe('function');
+        expect(typeof addon.syscall_0).toBe('function');
+        expect(typeof addon.syscall_1).toBe('function');
+        expect(typeof addon.syscall_2).toBe('function');
+        expect(typeof addon.syscall_3).toBe('function');
+        expect(typeof addon.syscall_4).toBe('function');
+        expect(typeof addon.syscall_5).toBe('function');
+        expect(typeof addon.syscall_6).toBe('function');
+        expect(typeof addon.syscall64_0).toBe('function');
+        expect(typeof addon.syscall64_1).toBe('function');
+        expect(typeof addon.syscall64_2).toBe('function');
+        expect(typeof addon.syscall64_3).toBe('function');
+        expect(typeof addon.syscall64_4).toBe('function');
+        expect(typeof addon.syscall64_5).toBe('function');
+        expect(typeof addon.syscall64_6).toBe('function');
+
+        expect(typeof addon.frame).toBe('function');
+
+        expect(typeof addon.call).toBe('function');
+        expect(typeof addon.call64).toBe('function');
+        expect(typeof addon.call_0).toBe('function');
+        expect(typeof addon.call_1).toBe('function');
+        expect(typeof addon.call64_0).toBe('function');
+        expect(typeof addon.call64_1).toBe('function');
     });
 });
