@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "__locale": "cpp"
     }
 }

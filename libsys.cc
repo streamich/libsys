@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include "syscall.cc"
+#include "syscall/syscall.cc"
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), result));
