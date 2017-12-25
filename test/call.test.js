@@ -1,4 +1,4 @@
-const addon = require('../build/Release/sys.node');
+const libsys = require('..');
 const {rax, rdi, rsi} = require('ass-js/lib/x86/operand');
 const Code = require('ass-js/lib/x86/x64/code').Code;
 
@@ -9,8 +9,8 @@ const SYS_mmap = isMac ? (0x2000000 + 197) : 9;
 function alloc(size) {
   const flags = 2 /* MAP_PRIVATE */ | (isMac ? 4096 : 32 /* MAP_ANONYMOUS */);
   const protnum = 1 | 2 | 4; // Read, write and execute;
-  const addr = addon.syscall64(SYS_mmap, 0, size, protnum, flags, -1, 0);
-  return addon.frame(addr, size);
+  const addr = libsys.syscall64(SYS_mmap, 0, size, protnum, flags, -1, 0);
+  return libsys.frame(addr, size);
 }
 
 describe('libsys', function() {
@@ -27,7 +27,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const result = addon.call(ab, 0, []);
+            const result = libsys.call(ab, 0, []);
 
             expect(result).toBe(0xBABE);
         });
@@ -45,7 +45,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const add = (a, b) => addon.call(ab, 0, [a, b]);
+            const add = (a, b) => libsys.call(ab, 0, [a, b]);
 
             expect(add(1, 1)).toBe(2);
             expect(add(2, 2)).toBe(4);
@@ -68,7 +68,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const [result, zero] = addon.call64(ab, 0, []);
+            const [result, zero] = libsys.call64(ab, 0, []);
 
             expect(result).toBe(0xBABE);
             expect(zero).toBe(0);
@@ -87,7 +87,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const add = (a, b) => addon.call64(ab, 0, [a, b])[0];
+            const add = (a, b) => libsys.call64(ab, 0, [a, b])[0];
 
             expect(add(1, 1)).toBe(2);
             expect(add(2, 2)).toBe(4);
@@ -110,7 +110,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const result = addon.call_0(ab);
+            const result = libsys.call_0(ab);
 
             expect(result).toBe(0xBABE);
         });
@@ -129,7 +129,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const result = addon.call_1(ab, 0xBABE);
+            const result = libsys.call_1(ab, 0xBABE);
 
             expect(result).toBe(0xBABE);
         });
@@ -148,7 +148,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const [result, zero] = addon.call64_0(ab);
+            const [result, zero] = libsys.call64_0(ab);
 
             expect(result).toBe(0xBABE);
             expect(zero).toBe(0);
@@ -168,7 +168,7 @@ describe('libsys', function() {
 
             for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 
-            const [result, zero] = addon.call64_1(ab, 0xBABE);
+            const [result, zero] = libsys.call64_1(ab, 0xBABE);
 
             expect(result).toBe(0xBABE);
             expect(zero).toBe(0);

@@ -1,5 +1,4 @@
 #include <sys/types.h>
-#include "syscall.h"
 
 inline int64_t syscall6(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6) {
     int64_t result;
@@ -50,7 +49,7 @@ inline int64_t syscall3(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3) {
     int64_t result;
 
     __asm__ __volatile__ (
-        "syscall"
+        "syscall;\n"
         : "=a" (result)
         : "a" (num), "D" (arg1), "S" (arg2), "d" (arg3)
         :
@@ -63,7 +62,7 @@ inline int64_t syscall2(int64_t num, int64_t arg1, int64_t arg2) {
     int64_t result;
 
     __asm__ __volatile__ (
-        "syscall"
+        "syscall;\n"
         : "=a" (result)
         : "a" (num), "D" (arg1), "S" (arg2)
         :
@@ -76,7 +75,7 @@ inline int64_t syscall1(int64_t num, int64_t arg1) {
     int64_t result;
 
     __asm__ __volatile__ (
-        "syscall"
+        "syscall;\n"
         : "=a" (result)
         : "a" (num), "D" (arg1)
         :
@@ -89,7 +88,7 @@ inline int64_t syscall0(int64_t num) {
     int64_t result;
 
     __asm__ __volatile__ (
-        "syscall"
+        "syscall;\n"
         : "=a" (result)
         : "a" (num)
         :

@@ -95,44 +95,37 @@ namespace libsys {
 
         int64_t cmd = (uint64_t) args[0]->Int32Value();
         if(len == 1) {
-            int64_t res = syscall0(cmd);
-            return res == -1 ? -errno : res;
+            return syscall0(cmd);
         }
 
         int64_t arg1 = ArgToInt(args[1]);
         if(len == 2) {
-            int64_t res = syscall1(cmd, arg1);
-            return res == -1 ? -errno : res;
+            return syscall1(cmd, arg1);
         }
 
         int64_t arg2 = ArgToInt(args[2]);
         if(len == 3) {
-            int64_t res = syscall2(cmd, arg1, arg2);
-            return res == -1 ? -errno : res;
+            return syscall2(cmd, arg1, arg2);
         }
 
         int64_t arg3 = ArgToInt(args[3]);
         if(len == 4) {
-            int64_t res = syscall3(cmd, arg1, arg2, arg3);
-            return res == -1 ? -errno : res;
+            return syscall3(cmd, arg1, arg2, arg3);
         }
 
         int64_t arg4 = ArgToInt(args[4]);
         if(len == 5) {
-             int64_t res = syscall4(cmd, arg1, arg2, arg3, arg4);
-             return res == -1 ? -errno : res;
+             return syscall4(cmd, arg1, arg2, arg3, arg4);
          }
 
         int64_t arg5 = ArgToInt(args[5]);
         if(len == 6) {
-            int64_t res = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
-            return res == -1 ? -errno : res;
+            return syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
         }
 
         int64_t arg6 = ArgToInt(args[6]);
         if(len == 7) {
-            int64_t res = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
-            return res == -1 ? -errno : res;
+            return syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         }
 
         return -1;
@@ -340,10 +333,6 @@ namespace libsys {
         args.GetReturnValue().Set(buf);
     }
 
-    void MethodErrno(const FunctionCallbackInfo<Value>& args) {
-        V8_RETURN_NUM(errno);
-    }
-
     typedef int64_t number; // JavaScript number.
     typedef number (*callback)();
     typedef number (*callback1)(number arg1);
@@ -403,7 +392,7 @@ namespace libsys {
                     ArgToInt(arr->Get(5))
                 );
             case 7:
-                ((callback7) addr)(
+                return ((callback7) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6))
                 );
@@ -418,7 +407,7 @@ namespace libsys {
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8))
                 );
             case 10:
-                ((callback10) addr)(
+                return ((callback10) addr)(
                     ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
                     ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8)), ArgToInt(arr->Get(9))
                 );
@@ -481,7 +470,6 @@ namespace libsys {
         NODE_SET_METHOD(exports, "syscall64_4",             MethodSyscall64_4);
         NODE_SET_METHOD(exports, "syscall64_5",             MethodSyscall64_5);
         NODE_SET_METHOD(exports, "syscall64_6",             MethodSyscall64_6);
-        NODE_SET_METHOD(exports, "errno",                   MethodErrno);
         NODE_SET_METHOD(exports, "addressArrayBuffer",      MethodAddrArrayBuffer);
         NODE_SET_METHOD(exports, "addressArrayBuffer64",    MethodAddrArrayBuffer64);
         NODE_SET_METHOD(exports, "addressTypedArray",       MethodAddrTypedArray);
