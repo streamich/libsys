@@ -7,10 +7,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/mman.h>
 #include "syscall/syscall.cc"
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
+#define SET_KEY(ISO, OBJ, K, V) OBJ->Set(String::NewFromUtf8(ISO, K), V);
 
 namespace libsys {
 
@@ -27,6 +29,8 @@ namespace libsys {
     using v8::ArrayBuffer;
     using v8::Uint8Array;
     using v8::TypedArray;
+    using v8::Function;
+    using v8::Primitive;
 
 
     Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
@@ -298,6 +302,7 @@ namespace libsys {
         V8_RETURN_NUM(result);
     }
 
+    // const res = libsys.syscall64_6(num, 1, 2, 3, 4, 5, 6);
     void MethodSyscall64_6(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
@@ -310,6 +315,7 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    // const ab = libsys.frame(address, size);
     void MethodFrame(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
@@ -440,7 +446,50 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void jumper(uint64_t id, uint64_t data, uint64_t size) {
+        std::cout << "jumper called" << std::endl;
+        std::cout << id << std::endl;
+
+        Isolate* isolate = Isolate::GetCurrent();
+        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
+        Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
+        Local<Object> jumpers = process->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
+        Local<Function> callback = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+
+        const unsigned argc = 2;
+        Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
+
+        callback->Call(Null(isolate), argc, argv);
+    }
+
+    void MethodJumper(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        char len = (char) args.Length();
+
+        Local<Function> callback = Local<Function>::Cast(args[0]);
+        const unsigned argc = 0;
+        Local<Value> argv[] = {};
+
+        // Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
+        // Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
+
+        // uint64_t addr = mmap();
+
+        if (len > 1) {
+            callback->Call(args[1]->ToObject(), argc, argv);
+        } else {
+            callback->Call(Null(isolate), argc, argv);
+        }
+    }
+
     void init(Local<Object> exports) {
+        Isolate* isolate = Isolate::GetCurrent();
+        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
+        Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
+
+        SET_KEY(isolate, process, "jumpers", Object::New(isolate));
+        SET_KEY(isolate, process, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
+
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
         NODE_SET_METHOD(exports, "syscall_0",               MethodSyscall_0);
@@ -468,8 +517,8 @@ namespace libsys {
         NODE_SET_METHOD(exports, "call_1",                  MethodCall_1);
         NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
         NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
+        NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
     }
 
     NODE_MODULE(addon, init)
-
 }
