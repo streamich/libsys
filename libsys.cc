@@ -135,37 +135,42 @@ namespace libsys {
 
         int64_t cmd = (uint64_t) args[0]->Int32Value();
         if(len == 1) {
-            return syscall0(cmd);
+            return syscall_0(cmd);
         }
 
         int64_t arg1 = ArgToInt(args[1]);
         if(len == 2) {
-            return syscall1(cmd, arg1);
+            return syscall_1(cmd, arg1);
         }
 
         int64_t arg2 = ArgToInt(args[2]);
         if(len == 3) {
-            return syscall2(cmd, arg1, arg2);
+            return syscall_2(cmd, arg1, arg2);
         }
 
         int64_t arg3 = ArgToInt(args[3]);
+        std::cout << "SYSCALL_3:" << std::endl;
+        std::cout << cmd << std::endl;
+        std::cout << arg1 << std::endl;
+        std::cout << arg2 << std::endl;
+        std::cout << arg3 << std::endl;
         if(len == 4) {
-            return syscall3(cmd, arg1, arg2, arg3);
+            return syscall_3(cmd, arg1, arg2, arg3);
         }
 
         int64_t arg4 = ArgToInt(args[4]);
         if(len == 5) {
-             return syscall4(cmd, arg1, arg2, arg3, arg4);
+             return syscall_4(cmd, arg1, arg2, arg3, arg4);
          }
 
         int64_t arg5 = ArgToInt(args[5]);
         if(len == 6) {
-            return syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+            return syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         }
 
         int64_t arg6 = ArgToInt(args[6]);
         if(len == 7) {
-            return syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+            return syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         }
 
         return -1;
@@ -190,27 +195,27 @@ namespace libsys {
 
     void MethodSyscall_0(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t result = syscall0(cmd);
+        int64_t result = syscall_0(cmd);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_0(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t result = syscall0(cmd);
+        int64_t result = syscall_0(cmd);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_1(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t result = syscall1(cmd, arg1);
+        int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_1(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t result = syscall1(cmd, arg1);
+        int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM64(result);
     }
 
@@ -218,7 +223,7 @@ namespace libsys {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t result = syscall2(cmd, arg1, arg2);
+        int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM(result);
     }
 
@@ -226,7 +231,7 @@ namespace libsys {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t result = syscall2(cmd, arg1, arg2);
+        int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM64(result);
     }
 
@@ -235,7 +240,7 @@ namespace libsys {
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM(result);
     }
 
@@ -244,7 +249,7 @@ namespace libsys {
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM64(result);
     }
 
@@ -254,7 +259,7 @@ namespace libsys {
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM(result);
     }
 
@@ -264,7 +269,7 @@ namespace libsys {
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM64(result);
     }
 
@@ -275,7 +280,7 @@ namespace libsys {
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM(result);
     }
 
@@ -286,7 +291,7 @@ namespace libsys {
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM64(result);
     }
 
@@ -298,7 +303,7 @@ namespace libsys {
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
         int64_t arg6 = (int64_t) args[6]->Int32Value();
-        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM(result);
     }
 
@@ -311,7 +316,7 @@ namespace libsys {
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
         int64_t arg6 = (int64_t) args[6]->Int32Value();
-        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM64(result);
     }
 
@@ -462,6 +467,11 @@ namespace libsys {
         callback->Call(Null(isolate), argc, argv);
     }
 
+    #include <stdio.h>
+    int nothing (int no) {
+        printf("NOTHING");
+    }
+
     void MethodJumper(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         char len = (char) args.Length();
@@ -489,6 +499,7 @@ namespace libsys {
 
         SET_KEY(isolate, process, "jumpers", Object::New(isolate));
         SET_KEY(isolate, process, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
+        SET_KEY(isolate, process, "nothing", Int64ToArray(isolate, (uint64_t)(&nothing)));
 
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);

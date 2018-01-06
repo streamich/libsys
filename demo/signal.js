@@ -3,6 +3,8 @@ const {X64} = require('ass-js');
 
 const isMac = process.platform === 'darwin';
 const SYS_mmap = isMac ? (0x2000000 + 197) : 9;
+const SYS_write = isMac ? 0x2000004 : 1;
+const STDOUT = 1;
 
 // Allocate executable memory, returns `ArrayBuffer`.
 function alloc(size) {
@@ -12,32 +14,34 @@ function alloc(size) {
     return libsys.frame(addr, size);
 }
 
-process.jumpers[22] = (a, b) => { console.log('lol, 22 called', a, b); };
-
 const asm = X64();
 
 const tpl = _ => {
-    const address = _('label', 'jump_address');
-    _('dq', [process.jumperAddress]);
+    const str = _.lbl('string');
 
+    // .text
     _('push', 'rdi');
     _('push', 'rsi');
     _('push', 'rdx');
 
-    _('mov', ['rdi', 22], 64);
-    _('mov', ['rsi', 12], 64);
-    _('mov', ['rdx', 8], 64);
-
-    _('call', [_('rip').disp(address)], 64);
+    _('mov', ['rax', SYS_write], 64);
+    _('mov', ['rdi', STDOUT], 64);
+    _('lea', ['rsi', _('rip').disp(str)], 64);
+    _('mov', ['rdx', 14], 64);
+    _('syscall');
 
     _('pop', 'rdx');
     _('pop', 'rsi');
     _('pop', 'rdi');
     _('ret');
+
+    // .data
+    _.insert(str);
+    _('db', 'Hello World!\n');
 };
 
 asm.code(tpl);
-console.log(String(asm));
+// console.log(String(asm));
 const code = asm.compile([]);
 console.log(String(asm));
 
@@ -49,16 +53,6 @@ for (let i = 0; i < code.length; i++) uint8[i] = code[i];
 console.log('MY PID IS: ', process.pid);
 
 setTimeout(() => {
-    let result = libsys.call(ab, 8, []);
-    console.log('result', result);
-
-    setTimeout(() => {
-        result = libsys.call(ab, 8, []);
-        console.log('result', result);
-        console.log('END');
-    }, 3000);
+    let result = libsys.call(ab, 0, []);
+    console.log('DONE', result);
 }, 3000);
-
-
-
-

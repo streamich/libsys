@@ -1,6 +1,5 @@
 const libsys = require('..');
-const {rax, rdi, rsi} = require('ass-js/lib/x86/operand');
-const Code = require('ass-js/lib/x86/x64/code').Code;
+const {X64} = require('ass-js');
 
 const isMac = process.platform === 'darwin';
 const SYS_mmap = isMac ? (0x2000000 + 197) : 9;
@@ -16,9 +15,9 @@ function alloc(size) {
 describe('libsys', function() {
     describe('.call()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, 0xBABE]);
+            _._('mov', ['rax', 0xBABE]);
             _._('ret');
 
             const code = _.compile();
@@ -33,10 +32,10 @@ describe('libsys', function() {
         });
 
         it('add(a, b) = a + b', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('add', [rdi, rsi]);
-            _._('mov', [rax, rdi]);
+            _._('add', ['rdi', 'rsi']);
+            _._('mov', ['rax', 'rdi']);
             _._('ret');
 
             const code = _.compile();
@@ -57,9 +56,9 @@ describe('libsys', function() {
 
     describe('.call64()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, 0xBABE]);
+            _._('mov', ['rax', 0xBABE]);
             _._('ret');
 
             const code = _.compile();
@@ -75,10 +74,10 @@ describe('libsys', function() {
         });
 
         it('add(a, b) = a + b', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('add', [rdi, rsi]);
-            _._('mov', [rax, rdi]);
+            _._('add', ['rdi', 'rsi']);
+            _._('mov', ['rax', 'rdi']);
             _._('ret');
 
             const code = _.compile();
@@ -99,9 +98,9 @@ describe('libsys', function() {
 
     describe('.call_0()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, 0xBABE]);
+            _._('mov', ['rax', 0xBABE]);
             _._('ret');
 
             const code = _.compile();
@@ -118,9 +117,9 @@ describe('libsys', function() {
 
     describe('.call_1()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, rdi]);
+            _._('mov', ['rax', 'rdi']);
             _._('ret');
 
             const code = _.compile();
@@ -137,9 +136,9 @@ describe('libsys', function() {
 
     describe('.call64_0()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, 0xBABE]);
+            _._('mov', ['rax', 0xBABE]);
             _._('ret');
 
             const code = _.compile();
@@ -157,9 +156,9 @@ describe('libsys', function() {
 
     describe('.call64_1()', function () {
         it('calls executable code', () => {
-            var _ = new Code;
+            var _ = X64();
 
-            _._('mov', [rax, rdi]);
+            _._('mov', ['rax', 'rdi']);
             _._('ret');
 
             const code = _.compile();
