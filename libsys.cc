@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include "syscall/syscall.cc"
+#include <signal.h>
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
@@ -149,11 +150,6 @@ namespace libsys {
         }
 
         int64_t arg3 = ArgToInt(args[3]);
-        std::cout << "SYSCALL_3:" << std::endl;
-        std::cout << cmd << std::endl;
-        std::cout << arg1 << std::endl;
-        std::cout << arg2 << std::endl;
-        std::cout << arg3 << std::endl;
         if(len == 4) {
             return syscall_3(cmd, arg1, arg2, arg3);
         }
@@ -451,6 +447,14 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void MethodSigaction(const FunctionCallbackInfo<Value>& args) {
+        int signum = args[0]->Int32Value();
+        struct sigaction* nas = (struct sigaction*) ArgToInt(args[1]);
+        struct sigaction* oas = (struct sigaction*) ArgToInt(args[2]);
+        int result = sigaction(signum, nas, oas);
+        V8_RETURN_NUM(result);
+    }
+
     void jumper(uint64_t id, uint64_t data, uint64_t size) {
         std::cout << "jumper called" << std::endl;
         std::cout << id << std::endl;
@@ -499,7 +503,6 @@ namespace libsys {
 
         SET_KEY(isolate, process, "jumpers", Object::New(isolate));
         SET_KEY(isolate, process, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
-        SET_KEY(isolate, process, "nothing", Int64ToArray(isolate, (uint64_t)(&nothing)));
 
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
@@ -529,6 +532,7 @@ namespace libsys {
         NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
         NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
         NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
+        NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
     }
 
     NODE_MODULE(addon, init)
