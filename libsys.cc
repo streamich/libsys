@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include "syscall/syscall.cc"
+#include "syscall/syscall.c"
 #include <signal.h>
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
@@ -33,6 +33,7 @@ namespace libsys {
     using v8::Function;
     using v8::Primitive;
 
+    Local<Object> _exports;
 
     Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
         int32_t lo = number & 0xffffffff;
@@ -456,24 +457,14 @@ namespace libsys {
     }
 
     void jumper(uint64_t id, uint64_t data, uint64_t size) {
-        std::cout << "jumper called" << std::endl;
-        std::cout << id << std::endl;
-
         Isolate* isolate = Isolate::GetCurrent();
-        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
-        Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
-        Local<Object> jumpers = process->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
+        Local<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
         Local<Function> callback = jumpers->Get(Integer::New(isolate, id)).As<Function>();
 
         const unsigned argc = 2;
         Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
 
         callback->Call(Null(isolate), argc, argv);
-    }
-
-    #include <stdio.h>
-    int nothing (int no) {
-        printf("NOTHING");
     }
 
     void MethodJumper(const FunctionCallbackInfo<Value>& args) {
@@ -484,11 +475,6 @@ namespace libsys {
         const unsigned argc = 0;
         Local<Value> argv[] = {};
 
-        // Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
-        // Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
-
-        // uint64_t addr = mmap();
-
         if (len > 1) {
             callback->Call(args[1]->ToObject(), argc, argv);
         } else {
@@ -497,12 +483,14 @@ namespace libsys {
     }
 
     void init(Local<Object> exports) {
+        _exports = exports;
+
         Isolate* isolate = Isolate::GetCurrent();
         Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
         Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
 
-        SET_KEY(isolate, process, "jumpers", Object::New(isolate));
-        SET_KEY(isolate, process, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
+        SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
+        SET_KEY(isolate, exports, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
 
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);

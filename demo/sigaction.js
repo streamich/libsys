@@ -17,7 +17,7 @@ function alloc(size) {
     return libsys.frame(addr, size);
 }
 
-process.jumpers[33] = (a, b) => { console.log('JUMPER 33 CALLED', a, b); };
+libsys.jumpers[33] = (a, b) => { console.log('JUMPER 33 CALLED', a, b); };
 
 const code = (template) => {
     const asm = X64();
@@ -59,6 +59,15 @@ const abHello = code(_ => {
     // .data
     _.insert(str);
     _('db', 'Hello World!\n');
+});
+
+const trampoline = code(_ => {
+    _('mov', ['rdi', 33], 64);
+    _('mov', ['rsi', 0], 64);
+    _('mov', ['rdx', 0], 64);
+    _('call', [_('rip').disp(address)], 64);
+
+    _('dq', [process.jumperAddress]);
 });
 
 // 00 80 4e 02 01 00 00 00

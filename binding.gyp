@@ -4,7 +4,7 @@
       "target_name": "libsys",
       "sources": [
         "libsys.cc",
-        "syscall/syscall.cc"
+        "syscall/syscall.c"
       ],
     }
   ]
