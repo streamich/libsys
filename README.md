@@ -35,6 +35,7 @@ libsys.syscall(SYS_write, STDOUT, buf, buf.length);
   - [libjs](http://www.github.com/streamich/libjs) - POSIX command implementation (`libc` in JavaScript).
   - [bamboo](http://www.github.com/streamich/bamboo) - Node.js clone in pure JavaScript.
   - [jskernel](http://www.github.com/streamich/jskernel) - proposal of Node in kernel space.
+  - [Assembler.js](http://www.github.com/streamich/ass-js) - X86_64 assembler in JavaScript.
 
 ## Reference
 
