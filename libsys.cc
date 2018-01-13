@@ -7,10 +7,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include "syscall/syscall.cc"
+#include <sys/mman.h>
+#include "syscall/syscall.c"
+#include <signal.h>
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
-#define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), result));
+#define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
+#define SET_KEY(ISO, OBJ, K, V) OBJ->Set(String::NewFromUtf8(ISO, K), V);
 
 namespace libsys {
 
@@ -27,28 +30,67 @@ namespace libsys {
     using v8::ArrayBuffer;
     using v8::Uint8Array;
     using v8::TypedArray;
+    using v8::Function;
+    using v8::Primitive;
 
+    Local<Object> _exports;
 
-    uint64_t GetAddrBuffer(Local<Object> obj) {
-        return (uint64_t) node::Buffer::Data(obj);
+    Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
+        int32_t lo = number & 0xffffffff;
+        int32_t hi = number >> 32;
+        Handle<Array> array = Array::New(isolate, 2);
+        array->Set(0, Integer::New(isolate, lo));
+        array->Set(1, Integer::New(isolate, hi));
+        return array;
     }
 
-    uint64_t GetAddrArrayBuffer(Local<Object> obj) {
+    inline uint64_t GetAddrArrayBuffer(Local<Object> obj) {
         Local<ArrayBuffer> ab = obj.As<ArrayBuffer>();
         ArrayBuffer::Contents ab_c = ab->GetContents();
         return (uint64_t)(ab_c.Data());
     }
 
-//    uint64_t GetAddrUint8Array(Local<Object> obj) {
-//        Local<Uint8Array> ui = obj.As<Uint8Array>();
-//        ArrayBuffer::Contents ab_c = ui->Buffer()->GetContents();
-//        return (uint64_t)(ab_c.Data()) + ui->ByteOffset();
-//    }
-
-    uint64_t GetAddrTypedArray(Local<Object> obj) {
+    inline uint64_t GetAddrTypedArray(Local<Object> obj) {
         Local<TypedArray> ta = obj.As<TypedArray>();
         ArrayBuffer::Contents ab_c = ta->Buffer()->GetContents();
         return (uint64_t)(ab_c.Data()) + ta->ByteOffset();
+    }
+
+    inline uint64_t GetAddrUint8Array(Local<Object> obj) {
+        return GetAddrTypedArray(obj);
+        // Local<Uint8Array> ui = obj.As<Uint8Array>();
+        // ArrayBuffer::Contents ab_c = ui->Buffer()->GetContents();
+        // return (uint64_t)(ab_c.Data()) + ui->ByteOffset();
+    }
+
+    inline uint64_t GetAddrBuffer(Local<Object> obj) {
+        return (uint64_t) node::Buffer::Data(obj);
+    }
+
+    void MethodGetAddressArrayBuffer(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = GetAddrArrayBuffer(args[0]->ToObject());
+        V8_RETURN_NUM64(addr);
+    }
+
+    void MethodGetAddressTypedArray(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = GetAddrTypedArray(args[0]->ToObject());
+        V8_RETURN_NUM64(addr);
+    }
+
+    void MethodGetAddressBuffer(const FunctionCallbackInfo<Value>& args) {
+        uint64_t addr = GetAddrBuffer(args[0]->ToObject());
+        V8_RETURN_NUM64(addr);
+    }
+
+    void MethodGetAddress(const FunctionCallbackInfo<Value>& args) {
+        Local<Object> obj = args[0]->ToObject();
+        uint64_t addr;
+
+        // Here we use the fact that Uint8Array is TypedArray, and Node's Buffer is Uint8Array.
+        if(obj->IsArrayBuffer()) addr = GetAddrArrayBuffer(obj);
+        else addr = GetAddrTypedArray(obj);
+
+        V8_RETURN_NUM64(addr);
     }
 
     // Transfrom different JavaScript objects to 64-bit integer.
@@ -95,37 +137,37 @@ namespace libsys {
 
         int64_t cmd = (uint64_t) args[0]->Int32Value();
         if(len == 1) {
-            return syscall0(cmd);
+            return syscall_0(cmd);
         }
 
         int64_t arg1 = ArgToInt(args[1]);
         if(len == 2) {
-            return syscall1(cmd, arg1);
+            return syscall_1(cmd, arg1);
         }
 
         int64_t arg2 = ArgToInt(args[2]);
         if(len == 3) {
-            return syscall2(cmd, arg1, arg2);
+            return syscall_2(cmd, arg1, arg2);
         }
 
         int64_t arg3 = ArgToInt(args[3]);
         if(len == 4) {
-            return syscall3(cmd, arg1, arg2, arg3);
+            return syscall_3(cmd, arg1, arg2, arg3);
         }
 
         int64_t arg4 = ArgToInt(args[4]);
         if(len == 5) {
-             return syscall4(cmd, arg1, arg2, arg3, arg4);
+             return syscall_4(cmd, arg1, arg2, arg3, arg4);
          }
 
         int64_t arg5 = ArgToInt(args[5]);
         if(len == 6) {
-            return syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+            return syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         }
 
         int64_t arg6 = ArgToInt(args[6]);
         if(len == 7) {
-            return syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+            return syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         }
 
         return -1;
@@ -136,15 +178,6 @@ namespace libsys {
         char len = (char) args.Length();
         if(len > 7) isolate->ThrowException(String::NewFromUtf8(isolate, "Syscall with over 6 arguments."));
         else args.GetReturnValue().Set(Integer::New(isolate, ExecSyscall(args)));
-    }
-
-    Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
-        int32_t lo = number & 0xffffffff;
-        int32_t hi = number >> 32;
-        Handle<Array> array = Array::New(isolate, 2);
-        array->Set(0, Integer::New(isolate, lo));
-        array->Set(1, Integer::New(isolate, hi));
-        return array;
     }
 
     void MethodSyscall64(const FunctionCallbackInfo<Value>& args) {
@@ -159,27 +192,27 @@ namespace libsys {
 
     void MethodSyscall_0(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t result = syscall0(cmd);
+        int64_t result = syscall_0(cmd);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_0(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t result = syscall0(cmd);
+        int64_t result = syscall_0(cmd);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_1(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t result = syscall1(cmd, arg1);
+        int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_1(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t result = syscall1(cmd, arg1);
+        int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM64(result);
     }
 
@@ -187,7 +220,7 @@ namespace libsys {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t result = syscall2(cmd, arg1, arg2);
+        int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM(result);
     }
 
@@ -195,7 +228,7 @@ namespace libsys {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t result = syscall2(cmd, arg1, arg2);
+        int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM64(result);
     }
 
@@ -204,7 +237,7 @@ namespace libsys {
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM(result);
     }
 
@@ -213,7 +246,7 @@ namespace libsys {
         int64_t arg1 = (int64_t) args[1]->Int32Value();
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t result = syscall3(cmd, arg1, arg2, arg3);
+        int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM64(result);
     }
 
@@ -223,7 +256,7 @@ namespace libsys {
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM(result);
     }
 
@@ -233,7 +266,7 @@ namespace libsys {
         int64_t arg2 = (int64_t) args[2]->Int32Value();
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t result = syscall4(cmd, arg1, arg2, arg3, arg4);
+        int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM64(result);
     }
 
@@ -244,7 +277,7 @@ namespace libsys {
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM(result);
     }
 
@@ -255,7 +288,7 @@ namespace libsys {
         int64_t arg3 = (int64_t) args[3]->Int32Value();
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t result = syscall5(cmd, arg1, arg2, arg3, arg4, arg5);
+        int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM64(result);
     }
 
@@ -267,10 +300,11 @@ namespace libsys {
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
         int64_t arg6 = (int64_t) args[6]->Int32Value();
-        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM(result);
     }
 
+    // const res = libsys.syscall64_6(num, 1, 2, 3, 4, 5, 6);
     void MethodSyscall64_6(const FunctionCallbackInfo<Value>& args) {
         int64_t cmd = (int64_t) args[0]->Int32Value();
         int64_t arg1 = (int64_t) args[1]->Int32Value();
@@ -279,50 +313,11 @@ namespace libsys {
         int64_t arg4 = (int64_t) args[4]->Int32Value();
         int64_t arg5 = (int64_t) args[5]->Int32Value();
         int64_t arg6 = (int64_t) args[6]->Int32Value();
-        int64_t result = syscall6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
+        int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM64(result);
     }
 
-    void MethodAddrArrayBuffer(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        uint64_t addr = GetAddrArrayBuffer(args[0]->ToObject());
-        args.GetReturnValue().Set(Integer::New(isolate, addr));
-    }
-
-    void MethodAddrArrayBuffer64(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        uint64_t addr = GetAddrArrayBuffer(args[0]->ToObject());
-        if(args.Length() == 2) {
-            int32_t offset = (int32_t) args[1]->Int32Value();
-            addr += offset;
-        }
-        args.GetReturnValue().Set(Int64ToArray(isolate, addr));
-    }
-
-    void MethodAddrTypedArray(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        uint64_t addr = GetAddrTypedArray(args[0]->ToObject());
-        args.GetReturnValue().Set(Integer::New(isolate, addr));
-    }
-
-    void MethodAddrTypedArray64(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        uint64_t addr = GetAddrTypedArray(args[0]->ToObject());
-        args.GetReturnValue().Set(Int64ToArray(isolate, addr));
-    }
-
-    void MethodAddrBuffer(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        uint64_t addr = GetAddrBuffer(args[0]->ToObject());
-        args.GetReturnValue().Set(Integer::New(isolate, addr));
-    }
-
-    void MethodAddrBuffer64(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        int64_t addr = GetAddrBuffer(args[0]->ToObject());
-        args.GetReturnValue().Set(Int64ToArray(isolate, addr));
-    }
-
+    // const ab = libsys.frame(address, size);
     void MethodFrame(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
@@ -453,7 +448,50 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void MethodSigaction(const FunctionCallbackInfo<Value>& args) {
+        int signum = args[0]->Int32Value();
+        struct sigaction* nas = (struct sigaction*) ArgToInt(args[1]);
+        struct sigaction* oas = (struct sigaction*) ArgToInt(args[2]);
+        int result = sigaction(signum, nas, oas);
+        V8_RETURN_NUM(result);
+    }
+
+    void jumper(uint64_t id, uint64_t data, uint64_t size) {
+        Isolate* isolate = Isolate::GetCurrent();
+        Local<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
+        Local<Function> callback = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+
+        const unsigned argc = 2;
+        Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
+
+        callback->Call(Null(isolate), argc, argv);
+    }
+
+    void MethodJumper(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        char len = (char) args.Length();
+
+        Local<Function> callback = Local<Function>::Cast(args[0]);
+        const unsigned argc = 0;
+        Local<Value> argv[] = {};
+
+        if (len > 1) {
+            callback->Call(args[1]->ToObject(), argc, argv);
+        } else {
+            callback->Call(Null(isolate), argc, argv);
+        }
+    }
+
     void init(Local<Object> exports) {
+        _exports = exports;
+
+        Isolate* isolate = Isolate::GetCurrent();
+        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
+        Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
+
+        SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
+        SET_KEY(isolate, exports, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
+
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
         NODE_SET_METHOD(exports, "syscall_0",               MethodSyscall_0);
@@ -470,12 +508,10 @@ namespace libsys {
         NODE_SET_METHOD(exports, "syscall64_4",             MethodSyscall64_4);
         NODE_SET_METHOD(exports, "syscall64_5",             MethodSyscall64_5);
         NODE_SET_METHOD(exports, "syscall64_6",             MethodSyscall64_6);
-        NODE_SET_METHOD(exports, "addressArrayBuffer",      MethodAddrArrayBuffer);
-        NODE_SET_METHOD(exports, "addressArrayBuffer64",    MethodAddrArrayBuffer64);
-        NODE_SET_METHOD(exports, "addressTypedArray",       MethodAddrTypedArray);
-        NODE_SET_METHOD(exports, "addressTypedArray64",     MethodAddrTypedArray64);
-        NODE_SET_METHOD(exports, "addressBuffer",           MethodAddrBuffer);
-        NODE_SET_METHOD(exports, "addressBuffer64",         MethodAddrBuffer64);
+        NODE_SET_METHOD(exports, "getAddressArrayBuffer",   MethodGetAddressArrayBuffer);
+        NODE_SET_METHOD(exports, "getAddressTypedArray",    MethodGetAddressTypedArray);
+        NODE_SET_METHOD(exports, "getAddressBuffer",        MethodGetAddressBuffer);
+        NODE_SET_METHOD(exports, "getAddress",              MethodGetAddress);
         NODE_SET_METHOD(exports, "frame",                   MethodFrame);
         NODE_SET_METHOD(exports, "call",                    MethodCall);
         NODE_SET_METHOD(exports, "call64",                  MethodCall64);
@@ -483,8 +519,9 @@ namespace libsys {
         NODE_SET_METHOD(exports, "call_1",                  MethodCall_1);
         NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
         NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
+        NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
+        NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
     }
 
     NODE_MODULE(addon, init)
-
 }

@@ -5,7 +5,7 @@
 #define CARRY_FLAG_BIT 1
 #define RETURN_SYSCALL_RESULT(result, flags) return (flags & CARRY_FLAG_BIT) ? -result : result;
 
-inline int64_t syscall6(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6) {
+static inline int64_t syscall_6(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6) {
     int64_t result;
     int64_t flags;
 
@@ -23,7 +23,7 @@ inline int64_t syscall6(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, i
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall5(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5) {
+static inline int64_t syscall_5(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5) {
     int64_t result;
     int64_t flags;
 
@@ -40,7 +40,7 @@ inline int64_t syscall5(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, i
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall4(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4) {
+static inline int64_t syscall_4(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4) {
     int64_t result;
     int64_t flags;
 
@@ -56,7 +56,7 @@ inline int64_t syscall4(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3, i
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall3(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3) {
+static inline int64_t syscall_3(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3) {
     int64_t result;
     int64_t flags;
 
@@ -71,7 +71,7 @@ inline int64_t syscall3(int64_t num, int64_t arg1, int64_t arg2, int64_t arg3) {
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall2(int64_t num, int64_t arg1, int64_t arg2) {
+static inline int64_t syscall_2(int64_t num, int64_t arg1, int64_t arg2) {
     int64_t result;
     int64_t flags;
 
@@ -86,7 +86,7 @@ inline int64_t syscall2(int64_t num, int64_t arg1, int64_t arg2) {
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall1(int64_t num, int64_t arg1) {
+static inline int64_t syscall_1(int64_t num, int64_t arg1) {
     int64_t result;
     int64_t flags;
 
@@ -101,7 +101,7 @@ inline int64_t syscall1(int64_t num, int64_t arg1) {
     RETURN_SYSCALL_RESULT(result, flags);
 }
 
-inline int64_t syscall0(int64_t num) {
+static inline int64_t syscall_0(int64_t num) {
     int64_t result;
     int64_t flags;
 

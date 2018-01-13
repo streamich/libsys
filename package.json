@@ -27,11 +27,17 @@
     "@types/node": "^8.0.24",
     "jest": "^22.0.4",
     "semantic-release": "^11.0.2",
-    "ass-js": "^1.0.6"
+    "ass-js": "^2.0.1",
+    "jest-tap-reporter": "1.8.2"
   },
   "scripts": {
     "test": "jest",
     "build": "node-gyp configure && node-gyp rebuild",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "jest": {
+    "reporters": [
+      "jest-tap-reporter"
+    ]
   }
 }
