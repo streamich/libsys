@@ -20,7 +20,7 @@ Compiles on Linux, Mac and Windows ([as WSL process](https://docs.microsoft.com/
 Print `Hello world` to console
 
 ```js
-const syscall = require('libsys').syscall;
+const libsys = require('libsys');
 
 const STDOUT = 1;
 const isMac = process.platform === 'darwin';
