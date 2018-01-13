@@ -5,7 +5,7 @@
   - Execute [Linux](https://filippo.io/linux-syscall-table/)/[Mac](https://opensource.apple.com/source/xnu/xnu-1504.3.12/bsd/kern/syscalls.master) `syscall` command from Node.js
   - Get memory address for `Buffer`, `ArrayBuffer`, `TypedArray`
   - Call arbitrary machine code from Node.js
-  - Create machine code trampilines that will call Node.js functions
+  - Create machine code trampolines that will call Node.js functions
 
 ## Installation
 
@@ -17,14 +17,17 @@ Compiles on Linux, Mac and Windows ([as WSL process](https://docs.microsoft.com/
 
 ## Usage
 
+Print `Hello world` to console
+
 ```js
 const syscall = require('libsys').syscall;
 
-// Print `Hello world` in console using kernel's `syscall` command.
-const SYS_write = process.platform === 'darwin';
-const buf = new Buffer('Hello world\n');
+const STDOUT = 1;
+const isMac = process.platform === 'darwin';
+const SYS_write = isMac ? 0x2000004 : 1;
+const buf = Buffer.from('Hello world\n');
 
-syscall(SYS_write, 1, buf, buf.length);
+libsys.syscall(SYS_write, STDOUT, buf, buf.length);
 ```
 
 ## More goodies
@@ -51,10 +54,10 @@ syscall(SYS_write, 1, buf, buf.length);
   - `syscall64_4`
   - `syscall64_5`
   - `syscall64_6`
-  - [`getAddressArrayBuffer`](#getAddressArrayBuffer) - Returns 64-bit address of `ArrayBuffer`
-  - [`getAddressTypedArray`](#getAddressTypedArray) - Returns 64-bit address of `TypedArray` (including `Uint8Array`, etc..)
-  - [`getAddressBuffer`](#getAddressBuffer) - Returns 64-bit address of Node's `Buffer`
-  - [`getAddress`](#getAddress) - Returns 64-bit address of any buffer type
+  - [`getAddressArrayBuffer`](#getaddressarraybuffer) - Returns 64-bit address of `ArrayBuffer`
+  - [`getAddressTypedArray`](#getaddresstypedarray) - Returns 64-bit address of `TypedArray` (including `Uint8Array`, etc..)
+  - [`getAddressBuffer`](#getaddressbuffer) - Returns 64-bit address of Node's `Buffer`
+  - [`getAddress`](#getaddress) - Returns 64-bit address of any buffer type
   - [`frame`](#frame) - Creates `ArrayBuffer` in the specified memory location
   - [`call`](#call) - Calls machine code at specified address with up to 10 arguments, returns 32-bit result
   - [`call64`](#call64) - Calls machine code at specified address with up to 10 arguments, returns 64-bit result
@@ -67,14 +70,14 @@ syscall(SYS_write, 1, buf, buf.length);
 
 ### Arguments
 
-Different JavaScript objects can be used as system call C arguments. Here is how they are converted to 64-bit integers:
+Different JavaScript types can be used as `Targ` argument in some functions. Here is how they are converted to 64-bit integers:
 
 ```ts
-type Targ = number|[number, number]|[number, number, number]|string|ArrayBuffer|TypedArray|Buffer;
+type Targ = number | [number, number] | [number, number, number] | string | ArrayBuffer | TypedArray | Buffer;
 ```
 
  - `number` is treated as 32-bit integer and gets extended to 64-bit integer;
- - `[number, number]` treated as a `[lo, hi]` tuple of two 32-bit integers, which are combined to 64-bit integer;
+ - `[number, number]` treated as a `[lo, hi]` tuple of two 32-bit integers, which are combined into 64-bit integer;
  - `[number, number, number]` treated as a `[lo, hi, offset]` tuple, same as above with the difference that `offset` is added to the resulting 64-bit integer;
  - `string` gets converted to C null-terminated string and 64-bit pointer created to the beginning of that string;
  - `ArrayBuffer`, `TypedArray`, `Buffer` 64-bit pointer to the beginning of data contents of those objects is created;
@@ -193,7 +196,7 @@ Same as `call` but ruturns a 64-bit `[number, number]`.
 call_0(address: Targ): number;
 ```
 
-Call machine code at `address` without any arguments using architecture specific calling conventions.
+Call machine code at `address` without any arguments using architecture specific calling conventions. Returns a 32-bit result.
 
 
 ## License
