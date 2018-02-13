@@ -25,7 +25,7 @@
   "gypfile": true,
   "devDependencies": {
     "@types/node": "9.4.5",
-    "jest": "22.2.2",
+    "jest": "22.3.0",
     "semantic-release": "12.4.1",
     "ass-js": "2.1.0",
     "jest-tap-reporter": "1.9.0"
