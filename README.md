@@ -45,20 +45,8 @@ libsys.syscall(SYS_write, STDOUT, buf, buf.length);
 
   - [`syscall`](#syscall) &mdash; Executes system call with varied type arguments, returns 32-bit result
   - [`syscall64`](#syscall64) &mdash; Executes system call with varied type arguments, return 64-bit result
-  - [`syscall_0`](#syscall_0) &mdash; Executes system call with no arguemnts, returns 32-bit result
-  - [`syscall_1`](#syscall_0) &mdash; Executes system call with 1 `number` argument, returns 32-bit result
-  - [`syscall_2`](#syscall_0) &mdash; Executes system call with 2 `number` arguments, returns 32-bit result
-  - [`syscall_3`](#syscall_0) &mdash; Executes system call with 3 `number` arguments, returns 32-bit result
-  - [`syscall_4`](#syscall_0) &mdash; Executes system call with 4 `number` arguments, returns 32-bit result
-  - [`syscall_5`](#syscall_0) &mdash; Executes system call with 5 `number` arguments, returns 32-bit result
-  - [`syscall_6`](#syscall_0) &mdash; Executes system call with 6 `number` arguments, returns 32-bit result
-  - [`syscall64_0`](#syscall64_0) &mdash; Executes system call with with no arguments, returns 64-bit result
-  - [`syscall64_1`](#syscall64_0) &mdash; Executes system call with 1 `number` argument, returns 64-bit result
-  - [`syscall64_2`](#syscall64_0) &mdash; Executes system call with 2 `number` argument2, returns 64-bit result
-  - [`syscall64_3`](#syscall64_0) &mdash; Executes system call with 3 `number` argument2, returns 64-bit result
-  - [`syscall64_4`](#syscall64_0) &mdash; Executes system call with 4 `number` argument2, returns 64-bit result
-  - [`syscall64_5`](#syscall64_0) &mdash; Executes system call with 5 `number` argument2, returns 64-bit result
-  - [`syscall64_6`](#syscall64_0) &mdash; Executes system call with 6 `number` argument2, returns 64-bit result
+  - [`syscall_N`](#syscall_0) &mdash; Executes system call with N `number` arguments, returns 32-bit result
+  - [`syscall64_N`](#syscall64_0) &mdash; Executes system call with N `number` arguments, returns 64-bit result
   - [`getAddressArrayBuffer`](#getaddressarraybuffer) - Returns 64-bit address of `ArrayBuffer`
   - [`getAddressTypedArray`](#getaddresstypedarray) - Returns 64-bit address of `TypedArray` (including `Uint8Array`, etc..)
   - [`getAddressBuffer`](#getaddressbuffer) - Returns 64-bit address of Node's `Buffer`
