@@ -35,10 +35,10 @@ libsys.syscall(SYS_write, STDOUT, buf, buf.length);
 
 ## More goodies
 
-  - [libjs](http://www.github.com/streamich/libjs) - POSIX command implementation (`libc` in JavaScript).
-  - [bamboo](http://www.github.com/streamich/bamboo) - Node.js clone in pure JavaScript.
-  - [jskernel](http://www.github.com/streamich/jskernel) - proposal of Node in kernel space.
-  - [Assembler.js](http://www.github.com/streamich/ass-js) - X86_64 assembler in JavaScript.
+  - [libjs](http://www.github.com/streamich/libjs) &mdash; POSIX command implementation (`libc` in JavaScript).
+  - [bamboo](http://www.github.com/streamich/bamboo) &mdash; Node.js clone in pure JavaScript.
+  - [jskernel](http://www.github.com/streamich/jskernel) &mdash; proposal of Node in kernel space.
+  - [Assembler.js](http://www.github.com/streamich/ass-js) &mdash; X86_64 assembler in JavaScript.
 
 
 ## Reference
@@ -47,14 +47,14 @@ libsys.syscall(SYS_write, STDOUT, buf, buf.length);
   - [`syscall64`](#syscall64) &mdash; Executes system call with varied type arguments, return 64-bit result
   - [`syscall_N`](#syscall_0) &mdash; Executes system call with N `number` arguments, returns 32-bit result
   - [`syscall64_N`](#syscall64_0) &mdash; Executes system call with N `number` arguments, returns 64-bit result
-  - [`getAddressArrayBuffer`](#getaddressarraybuffer) - Returns 64-bit address of `ArrayBuffer`
-  - [`getAddressTypedArray`](#getaddresstypedarray) - Returns 64-bit address of `TypedArray` (including `Uint8Array`, etc..)
-  - [`getAddressBuffer`](#getaddressbuffer) - Returns 64-bit address of Node's `Buffer`
-  - [`getAddress`](#getaddress) - Returns 64-bit address of any buffer type
-  - [`frame`](#frame) - Creates `ArrayBuffer` in the specified memory location
-  - [`call`](#call) - Calls machine code at specified address with up to 10 arguments, returns 32-bit result
-  - [`call64`](#call64) - Calls machine code at specified address with up to 10 arguments, returns 64-bit result
-  - [`call_0`](#call_0) - Call machine code with no arguments
+  - [`getAddressArrayBuffer`](#getaddressarraybuffer) &mdash; Returns 64-bit address of `ArrayBuffer`
+  - [`getAddressTypedArray`](#getaddresstypedarray) &mdash; Returns 64-bit address of `TypedArray` (including `Uint8Array`, etc..)
+  - [`getAddressBuffer`](#getaddressbuffer) &mdash; Returns 64-bit address of Node's `Buffer`
+  - [`getAddress`](#getaddress) &mdash; Returns 64-bit address of any buffer type
+  - [`frame`](#frame) &mdash; Creates `ArrayBuffer` in the specified memory location
+  - [`call`](#call) &mdash; Calls machine code at specified address with up to 10 arguments, returns 32-bit result
+  - [`call64`](#call64) &mdash; Calls machine code at specified address with up to 10 arguments, returns 64-bit result
+  - [`call_0`](#call_0) &mdash; Call machine code with no arguments
   - `call_1`
   - `call64_0`
   - `call64_1`
