@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/node": "9.6.34",
     "jest": "23.6.0",
-    "semantic-release": "15.9.16",
+    "semantic-release": "15.9.17",
     "ass-js": "2.1.0",
     "jest-tap-reporter": "1.9.0"
   },
