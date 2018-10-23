@@ -27,7 +27,7 @@
     "@types/node": "9.6.35",
     "jest": "23.6.0",
     "semantic-release": "15.10.5",
-    "ass-js": "2.1.0",
+    "ass-js": "2.1.1",
     "jest-tap-reporter": "1.9.0"
   },
   "scripts": {
