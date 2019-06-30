@@ -17,4 +17,11 @@ describe('dlsym', function() {
         const addr2 = libsys.__testDlsymAddr()
         expect(addr1).toEqual(addr2);
     });
+
+    it('call getpid()', () => {
+        const addr1 = libsys.dlsym('getpid');
+        const pid1 = process.pid;
+        const [pid2] = libsys.call64(addr1, 0, []);
+        expect(pid2).toBe(pid1);
+    });
 });

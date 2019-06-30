@@ -6,6 +6,6 @@ export function addr(buf: Buffer): number;
 export function addr64(buf: Buffer): [number, number];
 export function malloc(addr: number, size: number): ArrayBuffer;
 export function malloc64(addr_lo: number, addr_hi: number, size: number): ArrayBuffer;
-export function call(addr: number);
-export function call64(addr_lo: number, addr_hi: number);
+export function call(addr: number, offset: number, args: number[]);
+export function call64(addr: [number, number], offset: number, args: number[]);
 export function errno(): number;
