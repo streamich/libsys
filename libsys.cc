@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include "syscall/syscall.c"
 #include <signal.h>
+#include <dlfcn.h>
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
@@ -482,6 +483,21 @@ namespace libsys {
         }
     }
 
+    void DLSym(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        String::Utf8Value v8str(args[0]->ToString());
+        std::string cppstr = std::string(*v8str);
+        const char* cstr = cppstr.c_str();
+        uint64_t result = (uint64_t) dlsym(RTLD_DEFAULT, cstr);
+        V8_RETURN_NUM64(result);
+    }
+
+    void TestDlsymAddr(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        uint64_t result = (uint64_t) dlsym;
+        V8_RETURN_NUM64(result);
+    }
+
     void init(Local<Object> exports) {
         _exports = exports;
 
@@ -521,6 +537,8 @@ namespace libsys {
         NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
         NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
+        NODE_SET_METHOD(exports, "dlsym",                   DLSym);
+        NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
     }
 
     NODE_MODULE(addon, init)

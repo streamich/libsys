@@ -8,3 +8,4 @@ yarn.lock
 test.js
 old.cc
 build
+.vscode
