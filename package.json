@@ -1,7 +1,7 @@
 {
   "name": "libsys",
   "description": "syscall() function for Node.js",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "keywords": [
     "syscall",
     "system-call",
