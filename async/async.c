@@ -5,7 +5,7 @@
 #include "../syscall/syscall.h"
 #include <stdatomic.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define debug_print(fmt, ...) \
             do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
@@ -45,7 +45,7 @@ struct worker_start_record {
 };
 
 inline int64_t worker_exec_syscall (int32_t worker, async_call_record* record) {
-    printf("~> worker_exec_syscall [worker = %x, syscall = %lu, len = %x] \n", worker, record->headers.arg, record->headers.len);
+    debug_print("~> worker_exec_syscall [worker = %x, syscall = %lu, len = %x] \n", worker, record->headers.arg, record->headers.len);
     int64_t result;
     switch (record->headers.len) {
         case 0: return syscall_0(record->headers.arg);
