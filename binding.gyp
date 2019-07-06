@@ -4,7 +4,9 @@
       "target_name": "libsys",
       "sources": [
         "libsys.cc",
-        "syscall/syscall.c"
+        "syscall/syscall.c",
+        # "atomics/atomics.c",
+        # "async/async.c",
       ],
     }
   ]
