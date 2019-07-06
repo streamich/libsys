@@ -505,7 +505,7 @@ namespace libsys {
         int8_t* ptr = (int8_t*) ArgToInt(args[0]);
         int8_t oldval = args[1]->Int32Value();
         int8_t newval = args[2]->Int32Value();
-        int8_t result = cmpxchg16(ptr, oldval, newval);
+        int8_t result = cmpxchg8(ptr, oldval, newval);
         V8_RETURN_NUM(result);
     }
 
