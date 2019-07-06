@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include "syscall/syscall.c"
 #include "atomics/atomics.c"
+#include "async/async.c"
 #include <signal.h>
 #include <dlfcn.h>
 
@@ -499,6 +500,15 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void CmpXchg16(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int16_t* ptr = (int16_t*) ArgToInt(args[0]);
+        int16_t oldval = args[1]->Int32Value();
+        int16_t newval = args[2]->Int32Value();
+        int16_t result = cmpxchg16(ptr, oldval, newval);
+        V8_RETURN_NUM(result);
+    }
+
     void CmpXchg32(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         int32_t* ptr = (int32_t*) ArgToInt(args[0]);
@@ -506,6 +516,14 @@ namespace libsys {
         int32_t newval = args[2]->Int32Value();
         int32_t result = cmpxchg32(ptr, oldval, newval);
         V8_RETURN_NUM(result);
+    }
+
+    void Async(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        void* init_record_addr = (void*) ArgToInt(args[0]);
+        uint32_t nthreads = (uint32_t) ArgToInt(args[1]);
+        int res = create_async_pool(init_record_addr, nthreads);
+        V8_RETURN_NUM(res);
     }
 
     void init(Local<Object> exports) {
@@ -549,7 +567,9 @@ namespace libsys {
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
         NODE_SET_METHOD(exports, "dlsym",                   DLSym);
         NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
+        NODE_SET_METHOD(exports, "cmpxchg16",               CmpXchg16);
         NODE_SET_METHOD(exports, "cmpxchg32",               CmpXchg32);
+        NODE_SET_METHOD(exports, "async",                   Async);
     }
 
     NODE_MODULE(addon, init)
