@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include "syscall/syscall.c"
+#include "atomics/atomics.c"
 #include <signal.h>
 #include <dlfcn.h>
 
@@ -498,6 +499,15 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void CmpXchg32(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int32_t* ptr = (int32_t*) ArgToInt(args[0]);
+        int32_t oldval = args[1]->Int32Value();
+        int32_t newval = args[2]->Int32Value();
+        int32_t result = cmpxchg32(ptr, oldval, newval);
+        V8_RETURN_NUM(result);
+    }
+
     void init(Local<Object> exports) {
         _exports = exports;
 
@@ -539,6 +549,7 @@ namespace libsys {
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
         NODE_SET_METHOD(exports, "dlsym",                   DLSym);
         NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
+        NODE_SET_METHOD(exports, "cmpxchg32",               CmpXchg32);
     }
 
     NODE_MODULE(addon, init)
