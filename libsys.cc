@@ -500,6 +500,15 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void CmpXchg8(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int8_t* ptr = (int8_t*) ArgToInt(args[0]);
+        int8_t oldval = args[1]->Int32Value();
+        int8_t newval = args[2]->Int32Value();
+        int8_t result = cmpxchg16(ptr, oldval, newval);
+        V8_RETURN_NUM(result);
+    }
+
     void CmpXchg16(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         int16_t* ptr = (int16_t*) ArgToInt(args[0]);
@@ -567,6 +576,7 @@ namespace libsys {
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
         NODE_SET_METHOD(exports, "dlsym",                   DLSym);
         NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
+        NODE_SET_METHOD(exports, "cmpxchg8",                CmpXchg8);
         NODE_SET_METHOD(exports, "cmpxchg16",               CmpXchg16);
         NODE_SET_METHOD(exports, "cmpxchg32",               CmpXchg32);
         NODE_SET_METHOD(exports, "async",                   Async);
