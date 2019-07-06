@@ -11,6 +11,8 @@ export function call(addr: number, offset: number, args: number[]);
 export function call64(addr: [number, number], offset: number, args: number[]);
 export function errno(): number;
 
+export function dlsym(symbol: string): [number, number];
+
 export function cmpxchg8 (ptr: [number, number], oldValue: number, newValue: number);
 export function cmpxchg8 (ptr: [number, number, number], oldValue: number, newValue: number);
 export function cmpxchg8 (buf: ArrayBuffer, oldValue: number, newValue: number);

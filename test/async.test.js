@@ -1,4 +1,4 @@
-const {async, getAddress} = require('..');
+const {async, getAddress, dlsym} = require('..');
 
 const {pid} = process;
 const SYS_getpid = (0x2000000) + 20;
@@ -60,4 +60,26 @@ describe('async', function() {
             // console.log('numExited', emptyRecord.readInt8(7), recordGetpid.readInt8(7), numExited);
         });
     }
+
+    test('can execute call', async () => {
+        const addr = dlsym('getpid');
+        const numThreads = 2;                       // Number of threads to spin up.
+        const emptyRecord = Buffer.alloc(2 * 8);    // Create empty call record, where threads are pointed initially.
+        emptyRecord.writeInt32LE(-1, 0);            // Tell threads that this record is already in use.
+
+        async(emptyRecord, numThreads);
+
+        const recordGetpid = Buffer.alloc(3 * 8);
+        recordGetpid.writeInt8(1, 4);
+        recordGetpid.writeInt32LE(addr[0], 2 * 8);
+        recordGetpid.writeInt32LE(addr[1], 2 * 8 + 4);
+        const nextAddr = getAddress(recordGetpid);
+        emptyRecord.writeInt32LE(nextAddr[0], 8);
+        emptyRecord.writeInt32LE(nextAddr[1], 8 + 4);
+        emptyRecord.writeInt8(1, 6);
+
+        await new Promise(r => setTimeout(r, 10));
+        const res = recordGetpid.readInt32LE(2 * 8);
+        expect(res).toBe(pid);
+    });
 });

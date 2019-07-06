@@ -11,6 +11,7 @@
 #include "syscall/syscall.c"
 #include "atomics/atomics.c"
 #include "async/async.c"
+#include "call/call.h"
 #include <signal.h>
 #include <dlfcn.h>
 
@@ -330,19 +331,6 @@ namespace libsys {
         Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, addr, size);
         args.GetReturnValue().Set(buf);
     }
-
-    typedef int64_t number; // JavaScript number.
-    typedef number (*callback)();
-    typedef number (*callback1)(number arg1);
-    typedef number (*callback2)(number arg1, number arg2);
-    typedef number (*callback3)(number arg1, number arg2, number arg3);
-    typedef number (*callback4)(number arg1, number arg2, number arg3, number arg4);
-    typedef number (*callback5)(number arg1, number arg2, number arg3, number arg4, number arg5);
-    typedef number (*callback6)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6);
-    typedef number (*callback7)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7);
-    typedef number (*callback8)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8);
-    typedef number (*callback9)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9);
-    typedef number (*callback10)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9, number arg10);
 
     int64_t call_method(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();

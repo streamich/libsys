@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "../atomics/atomics.h"
 #include "../syscall/syscall.h"
+#include "../call/call.h"
 #include <stdatomic.h>
 
 #define DEBUG 0
@@ -55,8 +56,27 @@ inline int64_t worker_exec_syscall (int32_t worker, async_call_record* record) {
         case 4: return syscall_4(record->headers.arg, record->args[0], record->args[1], record->args[2], record->args[3]);
         case 5: return syscall_5(record->headers.arg, record->args[0], record->args[1], record->args[2], record->args[3], record->args[4]);
         case 6: return syscall_6(record->headers.arg, record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5]);
+        default: return -1;
     }
-    return -1;
+}
+
+int64_t worker_exec_call (int32_t worker, async_call_record* record) {
+    debug_print("~> worker_exec_call [worker = %x, address = %lu, len = %x] \n", worker, record->headers.arg, record->headers.len);
+    int64_t result;
+    switch (record->headers.len) {
+        case 0: return ((callback) record->headers.arg)();
+        case 1: return ((callback1) record->headers.arg)(record->args[0]);
+        case 2: return ((callback2) record->headers.arg)(record->args[0], record->args[1]);
+        case 3: return ((callback3) record->headers.arg)(record->args[0], record->args[1], record->args[2]);
+        case 4: return ((callback4) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3]);
+        case 5: return ((callback5) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4]);
+        case 6: return ((callback6) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5]);
+        case 7: return ((callback7) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5], record->args[6]);
+        case 8: return ((callback8) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5], record->args[6], record->args[7]);
+        case 9: return ((callback9) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5], record->args[6], record->args[7], record->args[8]);
+        case 10: return ((callback10) record->headers.arg)(record->args[0], record->args[1], record->args[2], record->args[3], record->args[4], record->args[5], record->args[6], record->args[7], record->args[8], record->args[9]);
+        default: return -1;
+    }
 }
 
 inline void* worker_process_new_block (int32_t worker, async_call_record* record) {
@@ -80,6 +100,10 @@ process_block:
         case TYPE_SYSCALL:
             record->headers.arg = worker_exec_syscall(worker, record);
             debug_print("   syscall result: [worker = %x, result = %ld] \n", worker, record->headers.arg);
+            break;
+        case TYPE_CALL:
+            record->headers.arg = worker_exec_call(worker, record);
+            debug_print("   call result: [worker = %x, result = %ld] \n", worker, record->headers.arg);
             break;
         case TYPE_EXIT:
             goto exit;
