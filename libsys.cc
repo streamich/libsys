@@ -4,6 +4,7 @@
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
+#include <nan.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -14,7 +15,6 @@
 #include "call/call.h"
 #include <signal.h>
 #include <dlfcn.h>
-#include "./node_modules/nan/nan.h"
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
