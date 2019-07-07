@@ -3,7 +3,7 @@ const {async, getAddress, dlsym} = require('..');
 const {pid} = process;
 const SYS_getpid = (0x2000000) + 20;
 
-describe('async', function() {
+xdescribe('async', function() {
     it('method exists', () => {
         expect(typeof async).toBe('function');
     });
