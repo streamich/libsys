@@ -73,22 +73,22 @@ namespace libsys {
     }
 
     void MethodGetAddressArrayBuffer(const FunctionCallbackInfo<Value>& args) {
-        uint64_t addr = GetAddrArrayBuffer(args[0]->ToObject());
+        uint64_t addr = GetAddrArrayBuffer(args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
         V8_RETURN_NUM64(addr);
     }
 
     void MethodGetAddressTypedArray(const FunctionCallbackInfo<Value>& args) {
-        uint64_t addr = GetAddrTypedArray(args[0]->ToObject());
+        uint64_t addr = GetAddrTypedArray(args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
         V8_RETURN_NUM64(addr);
     }
 
     void MethodGetAddressBuffer(const FunctionCallbackInfo<Value>& args) {
-        uint64_t addr = GetAddrBuffer(args[0]->ToObject());
+        uint64_t addr = GetAddrBuffer(args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
         V8_RETURN_NUM64(addr);
     }
 
     void MethodGetAddress(const FunctionCallbackInfo<Value>& args) {
-        Local<Object> obj = args[0]->ToObject();
+        Local<Object> obj = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
         uint64_t addr;
 
         // Here we use the fact that Uint8Array is TypedArray, and Node's Buffer is Uint8Array.
@@ -110,11 +110,11 @@ namespace libsys {
                 const char *cstr = cppstr.c_str();
                 return (uint64_t) cstr;
             } else if(arg->IsArrayBuffer()) {
-                return GetAddrArrayBuffer(arg->ToObject());
+                return GetAddrArrayBuffer(arg->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
 //            } else if(arg->IsUint8Array()) {
             } else if(arg->IsTypedArray()) {
 //                return GetAddrUint8Array(arg->ToObject());
-                return GetAddrTypedArray(arg->ToObject());
+                return GetAddrTypedArray(arg->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
             } else if (arg->IsArray()) { // [lo, hi, offset]
                 Local<Array> arr = arg.As<Array>();
                 uint32_t arrlen = arr->Length();
@@ -132,7 +132,7 @@ namespace libsys {
                 return addr;
             } else {
                 // Assume it is `Buffer`.
-                return GetAddrBuffer(arg->ToObject());
+                return GetAddrBuffer(arg->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
             }
         }
     }
@@ -468,7 +468,7 @@ namespace libsys {
         Local<Value> argv[] = {};
 
         if (len > 1) {
-            callback->Call(args[1]->ToObject(), argc, argv);
+            callback->Call(args[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked(), argc, argv);
         } else {
             callback->Call(Null(isolate), argc, argv);
         }
