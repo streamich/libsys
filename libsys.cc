@@ -14,6 +14,7 @@
 #include "call/call.h"
 #include <signal.h>
 #include <dlfcn.h>
+#include "./node_modules/nan/nan.h"
 
 #define V8_RETURN_NUM(X) args.GetReturnValue().Set(Integer::New(args.GetIsolate(), X));
 #define V8_RETURN_NUM64(X) args.GetReturnValue().Set(Int64ToArray(args.GetIsolate(), X));
@@ -100,10 +101,10 @@ namespace libsys {
     // Transfrom different JavaScript objects to 64-bit integer.
     int64_t ArgToInt(Local<Value> arg) {
         if(arg->IsNumber()) {
-            return (int64_t) arg->Int32Value();
+            return Nan::To<int64_t>(arg).FromJust();
         } else {
             if(arg->IsString()) {
-                String::Utf8Value v8str(arg->ToString());
+                Nan::Utf8String v8str(arg);
     //            String::AsciiValue  v8str(arg->ToString());
                 std::string cppstr = std::string(*v8str);
                 const char *cstr = cppstr.c_str();
@@ -118,13 +119,13 @@ namespace libsys {
                 Local<Array> arr = arg.As<Array>();
                 uint32_t arrlen = arr->Length();
 
-                int32_t lo = (int32_t) arr->Get(0)->Int32Value();
-                int32_t hi = (int32_t) arr->Get(1)->Int32Value();
+                int32_t lo = (int32_t) Nan::To<int32_t>(arr->Get(0)).FromJust();
+                int32_t hi = (int32_t) Nan::To<int32_t>(arr->Get(1)).FromJust();
 
                 uint64_t addr = (uint64_t) ((((int64_t) hi) << 32) | ((int64_t) lo & 0xffffffff));
 
                 if(arrlen == 3) {
-                    int32_t offset = (int32_t) arr->Get(2)->Int32Value();
+                    int32_t offset = Nan::To<int32_t>(arr->Get(2)).FromJust();
                     addr += offset;
                 }
 
@@ -139,7 +140,7 @@ namespace libsys {
     int64_t ExecSyscall(const FunctionCallbackInfo<Value>& args) {
         char len = (char) args.Length();
 
-        int64_t cmd = (uint64_t) args[0]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
         if(len == 1) {
             return syscall_0(cmd);
         }
@@ -195,128 +196,128 @@ namespace libsys {
     }
 
     void MethodSyscall_0(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
         int64_t result = syscall_0(cmd);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_0(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
         int64_t result = syscall_0(cmd);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_1(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
         int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_1(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
         int64_t result = syscall_1(cmd, arg1);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_2(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
         int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_2(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
         int64_t result = syscall_2(cmd, arg1, arg2);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_3(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
         int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_3(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
         int64_t result = syscall_3(cmd, arg1, arg2, arg3);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_4(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
         int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_4(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
         int64_t result = syscall_4(cmd, arg1, arg2, arg3, arg4);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_5(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
+        int64_t arg5 = Nan::To<int64_t>(args[5]).FromJust();
         int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM(result);
     }
 
     void MethodSyscall64_5(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t arg5 = (int64_t) args[5]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
+        int64_t arg5 = Nan::To<int64_t>(args[5]).FromJust();
         int64_t result = syscall_5(cmd, arg1, arg2, arg3, arg4, arg5);
         V8_RETURN_NUM64(result);
     }
 
     void MethodSyscall_6(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t arg6 = (int64_t) args[6]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
+        int64_t arg5 = Nan::To<int64_t>(args[5]).FromJust();
+        int64_t arg6 = Nan::To<int64_t>(args[6]).FromJust();
         int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM(result);
     }
 
     // const res = libsys.syscall64_6(num, 1, 2, 3, 4, 5, 6);
     void MethodSyscall64_6(const FunctionCallbackInfo<Value>& args) {
-        int64_t cmd = (int64_t) args[0]->Int32Value();
-        int64_t arg1 = (int64_t) args[1]->Int32Value();
-        int64_t arg2 = (int64_t) args[2]->Int32Value();
-        int64_t arg3 = (int64_t) args[3]->Int32Value();
-        int64_t arg4 = (int64_t) args[4]->Int32Value();
-        int64_t arg5 = (int64_t) args[5]->Int32Value();
-        int64_t arg6 = (int64_t) args[6]->Int32Value();
+        int64_t cmd = Nan::To<int64_t>(args[0]).FromJust();
+        int64_t arg1 = Nan::To<int64_t>(args[1]).FromJust();
+        int64_t arg2 = Nan::To<int64_t>(args[2]).FromJust();
+        int64_t arg3 = Nan::To<int64_t>(args[3]).FromJust();
+        int64_t arg4 = Nan::To<int64_t>(args[4]).FromJust();
+        int64_t arg5 = Nan::To<int64_t>(args[5]).FromJust();
+        int64_t arg6 = Nan::To<int64_t>(args[6]).FromJust();
         int64_t result = syscall_6(cmd, arg1, arg2, arg3, arg4, arg5, arg6);
         V8_RETURN_NUM64(result);
     }
@@ -326,7 +327,7 @@ namespace libsys {
         Isolate* isolate = args.GetIsolate();
 
         void* addr = (void*) ArgToInt(args[0]);
-        size_t size = (size_t) args[1]->Int32Value();
+        size_t size = (size_t) Nan::To<int32_t>(args[1]).FromJust();
 
         Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, addr, size);
         args.GetReturnValue().Set(buf);
@@ -340,7 +341,7 @@ namespace libsys {
 
         int32_t offset;
         if(len > 1) {
-            offset = (int32_t) args[1]->Int32Value();
+            offset = Nan::To<int32_t>(args[1]).FromJust();
             addr += offset;
         }
 
@@ -440,7 +441,7 @@ namespace libsys {
     }
 
     void MethodSigaction(const FunctionCallbackInfo<Value>& args) {
-        int signum = args[0]->Int32Value();
+        int signum = Nan::To<int>(args[0]).FromJust();
         struct sigaction* nas = (struct sigaction*) ArgToInt(args[1]);
         struct sigaction* oas = (struct sigaction*) ArgToInt(args[2]);
         int result = sigaction(signum, nas, oas);
@@ -474,8 +475,7 @@ namespace libsys {
     }
 
     void DLSym(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        String::Utf8Value v8str(args[0]->ToString());
+        Nan::Utf8String v8str(args[0]);
         std::string cppstr = std::string(*v8str);
         const char* cstr = cppstr.c_str();
         uint64_t result = (uint64_t) dlsym(RTLD_DEFAULT, cstr);
@@ -483,40 +483,35 @@ namespace libsys {
     }
 
     void TestDlsymAddr(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
         uint64_t result = (uint64_t) dlsym;
         V8_RETURN_NUM64(result);
     }
 
     void CmpXchg8(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
         int8_t* ptr = (int8_t*) ArgToInt(args[0]);
-        int8_t oldval = args[1]->Int32Value();
-        int8_t newval = args[2]->Int32Value();
+        int8_t newval = (int8_t) Nan::To<int32_t>(args[2]).FromJust();
+        int8_t oldval = (int8_t) Nan::To<int32_t>(args[1]).FromJust();
         int8_t result = cmpxchg8(ptr, oldval, newval);
         V8_RETURN_NUM(result);
     }
 
     void CmpXchg16(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
         int16_t* ptr = (int16_t*) ArgToInt(args[0]);
-        int16_t oldval = args[1]->Int32Value();
-        int16_t newval = args[2]->Int32Value();
+        int16_t newval = (int8_t) Nan::To<int32_t>(args[2]).FromJust();
+        int16_t oldval = (int8_t) Nan::To<int32_t>(args[1]).FromJust();
         int16_t result = cmpxchg16(ptr, oldval, newval);
         V8_RETURN_NUM(result);
     }
 
     void CmpXchg32(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
         int32_t* ptr = (int32_t*) ArgToInt(args[0]);
-        int32_t oldval = args[1]->Int32Value();
-        int32_t newval = args[2]->Int32Value();
+        int32_t oldval = Nan::To<int32_t>(args[1]).FromJust();
+        int32_t newval = Nan::To<int32_t>(args[2]).FromJust();
         int32_t result = cmpxchg32(ptr, oldval, newval);
         V8_RETURN_NUM(result);
     }
 
     void Async(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
         void* init_record_addr = (void*) ArgToInt(args[0]);
         uint32_t nthreads = (uint32_t) ArgToInt(args[1]);
         int res = create_async_pool(init_record_addr, nthreads);
@@ -528,7 +523,7 @@ namespace libsys {
 
         Isolate* isolate = Isolate::GetCurrent();
         Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
-        Local<Object> process = curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
+        curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
 
         SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
         SET_KEY(isolate, exports, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));

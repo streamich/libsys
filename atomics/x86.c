@@ -1,7 +1,6 @@
 #include <sys/types.h>
 
 static inline int8_t atomic_increment(int8_t* ptr, int8_t increment) {
-    int8_t out;
     __asm__ volatile("lock; xadd %0, %1"
         : "+r" (increment), "+m" (*ptr) // input + output
         : // No input-only

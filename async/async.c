@@ -62,7 +62,7 @@ const int8_t TYPE_CALL = 1;         // Record specifies a regular function call 
 const int8_t TYPE_EXIT = 2;         // Tells thread to quit.
 
 inline int64_t worker_exec_syscall (int32_t worker, async_syscall* record) {
-    debug_print("~> worker_exec_syscall [worker = %x, syscall = %lu, len = %x] \n", worker, record->sys, record->len);
+    debug_print("~> worker_exec_syscall [worker = %x, syscall = %u, len = %x] \n", worker, record->sys, record->len);
     switch (record->len) {
         case 0: return syscall_0(record->sys);
         case 1: return syscall_1(record->sys, record->args[0]);
@@ -76,7 +76,7 @@ inline int64_t worker_exec_syscall (int32_t worker, async_syscall* record) {
 }
 
 int64_t worker_exec_call (int32_t worker, async_call* record) {
-    debug_print("~> worker_exec_call [worker = %x, address = %lu, len = %x] \n", worker, record->addr, record->len);
+    debug_print("~> worker_exec_call [worker = %x, address = %llu, len = %llx] \n", worker, record->addr, record->len);
     switch (record->len) {
         case 0: return ((callback) record->addr)();
         case 1: return ((callback1) record->addr)(record->args[0]);
@@ -114,12 +114,12 @@ process_block:
         case TYPE_SYSCALL:
             ((async_result*) headers)->result = worker_exec_syscall(worker, (async_syscall*) headers);
             write(pipe_fd, &(headers->id), sizeof(headers->id));
-            debug_print("   syscall result: [worker = %x, result = %ld] \n", worker, ((async_result*) headers)->result);
+            debug_print("   syscall result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
             break;
         case TYPE_CALL:
             ((async_result*) headers)->result = worker_exec_call(worker, (async_call*) headers);
             write(pipe_fd, &(headers->id), sizeof(headers->id));
-            debug_print("   call result: [worker = %x, result = %ld] \n", worker, ((async_result*) headers)->result);
+            debug_print("   call result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
             break;
         case TYPE_EXIT:
             goto exit;
@@ -143,6 +143,7 @@ void* worker_start (void* arg) {
     worker_start_record* start_record = (worker_start_record*) arg;
     assert(start_record->worker != 0); // Worker ID cannot be 0, because it is LOCK_FREE.
     worker_process_new_block(start_record->worker, start_record->pipe_fd, start_record->headers);
+    return NULL;
 }
 
 int32_t create_async_pool (void* headers, uint32_t nthreads) {
