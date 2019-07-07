@@ -4,7 +4,6 @@
 #include "../atomics/atomics.h"
 #include "../syscall/syscall.h"
 #include "../call/call.h"
-#include <stdatomic.h>
 
 #define DEBUG 0
 #define debug_print(fmt, ...) \
@@ -14,7 +13,7 @@ typedef int32_t lock_t;
 typedef int8_t type_t;
 typedef int8_t len_t;
 typedef int8_t ready_t;
-typedef atomic_char left_t;
+typedef int8_t left_t;
 typedef struct async_call_headers async_call_headers;
 typedef struct async_call_record async_call_record;
 typedef struct worker_start_record worker_start_record;
@@ -90,7 +89,7 @@ start:
 
 look_for_next_block:
     if (record->headers.ready == 0) goto sleep;
-    ++record->headers.left;
+    atomic_increment(&(record->headers.left), 1);
     record = record->headers.next;
     goto start;
 
@@ -118,7 +117,7 @@ sleep:
     goto look_for_next_block;
 
 exit:
-    ++record->headers.left;
+    atomic_increment(&(record->headers.left), 1);
     debug_print("Exiting [worker = %x] \n", worker);
     pthread_exit(NULL);
 }
