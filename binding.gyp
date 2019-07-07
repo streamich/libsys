@@ -9,5 +9,8 @@
         # "async/async.c",
       ],
     }
+  ],
+  "include_dirs" : [
+    "<!(node -e \"require('nan')\")"
   ]
 }
