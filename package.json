@@ -26,13 +26,11 @@
   "devDependencies": {
     "@types/node": "^12.0.12",
     "ass-js": "2.1.1",
-    "jest": "23.6.0",
-    "semantic-release": "15.13.18"
+    "jest": "23.6.0"
   },
   "scripts": {
     "test": "jest",
-    "build": "node-gyp configure && node-gyp rebuild",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "build": "node-gyp configure && node-gyp rebuild"
   },
   "dependencies": {
     "nan": "^2.14.0"
