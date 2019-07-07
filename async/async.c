@@ -9,6 +9,11 @@
 #define debug_print(fmt, ...) \
             do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
+/* fix yield on OS X */
+#ifdef __APPLE__
+#define pthread_yield() pthread_yield_np()
+#endif
+
 typedef int32_t lock_t;
 typedef int8_t type_t;
 typedef int8_t len_t;
@@ -113,7 +118,7 @@ process_block:
 sleep:
     // debug_print("Waiting for next block [worker = %i]\n", worker);
     if (record->headers.type == TYPE_EXIT) goto exit;
-    pthread_yield_np();
+    pthread_yield();
     goto look_for_next_block;
 
 exit:
