@@ -10,6 +10,8 @@
 #include <sys/mman.h>
 #include "syscall/syscall.c"
 #include "atomics/atomics.c"
+#include "async/async.c"
+#include "call/call.h"
 #include <signal.h>
 #include <dlfcn.h>
 
@@ -330,19 +332,6 @@ namespace libsys {
         args.GetReturnValue().Set(buf);
     }
 
-    typedef int64_t number; // JavaScript number.
-    typedef number (*callback)();
-    typedef number (*callback1)(number arg1);
-    typedef number (*callback2)(number arg1, number arg2);
-    typedef number (*callback3)(number arg1, number arg2, number arg3);
-    typedef number (*callback4)(number arg1, number arg2, number arg3, number arg4);
-    typedef number (*callback5)(number arg1, number arg2, number arg3, number arg4, number arg5);
-    typedef number (*callback6)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6);
-    typedef number (*callback7)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7);
-    typedef number (*callback8)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8);
-    typedef number (*callback9)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9);
-    typedef number (*callback10)(number arg1, number arg2, number arg3, number arg4, number arg5, number arg6, number arg7, number arg8, number arg9, number arg10);
-
     int64_t call_method(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
 
@@ -499,6 +488,24 @@ namespace libsys {
         V8_RETURN_NUM64(result);
     }
 
+    void CmpXchg8(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int8_t* ptr = (int8_t*) ArgToInt(args[0]);
+        int8_t oldval = args[1]->Int32Value();
+        int8_t newval = args[2]->Int32Value();
+        int8_t result = cmpxchg8(ptr, oldval, newval);
+        V8_RETURN_NUM(result);
+    }
+
+    void CmpXchg16(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        int16_t* ptr = (int16_t*) ArgToInt(args[0]);
+        int16_t oldval = args[1]->Int32Value();
+        int16_t newval = args[2]->Int32Value();
+        int16_t result = cmpxchg16(ptr, oldval, newval);
+        V8_RETURN_NUM(result);
+    }
+
     void CmpXchg32(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         int32_t* ptr = (int32_t*) ArgToInt(args[0]);
@@ -506,6 +513,14 @@ namespace libsys {
         int32_t newval = args[2]->Int32Value();
         int32_t result = cmpxchg32(ptr, oldval, newval);
         V8_RETURN_NUM(result);
+    }
+
+    void Async(const FunctionCallbackInfo<Value>& args) {
+        Isolate* isolate = args.GetIsolate();
+        void* init_record_addr = (void*) ArgToInt(args[0]);
+        uint32_t nthreads = (uint32_t) ArgToInt(args[1]);
+        int res = create_async_pool(init_record_addr, nthreads);
+        V8_RETURN_NUM(res);
     }
 
     void init(Local<Object> exports) {
@@ -549,7 +564,10 @@ namespace libsys {
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
         NODE_SET_METHOD(exports, "dlsym",                   DLSym);
         NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
+        NODE_SET_METHOD(exports, "cmpxchg8",                CmpXchg8);
+        NODE_SET_METHOD(exports, "cmpxchg16",               CmpXchg16);
         NODE_SET_METHOD(exports, "cmpxchg32",               CmpXchg32);
+        NODE_SET_METHOD(exports, "async",                   Async);
     }
 
     NODE_MODULE(addon, init)

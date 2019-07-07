@@ -1,4 +1,4 @@
-const {cmpxchg32, getAddress} = require('..');
+const {cmpxchg8, cmpxchg16, cmpxchg32, getAddress} = require('..');
 
 describe('cmpxchg32', function() {
     it('method exists', () => {
@@ -60,4 +60,81 @@ describe('cmpxchg32', function() {
       expect(buf.readInt32LE(0)).toBe(0);
       expect(buf.readInt32LE(4)).toBe(10);
     });
+
+    it('returns value in memory on success', () => {
+      const buf = Buffer.alloc(4, 0);
+      buf.writeInt32LE(1);
+      const res = cmpxchg32(buf, 1, 10);
+      expect(res).toBe(1);
+    });
+
+    it('returns value in memory on failure', () => {
+      const buf = Buffer.alloc(4, 0);
+      buf.writeInt32LE(1);
+      const res = cmpxchg32(buf, 2, 10);
+      expect(res).toBe(1);
+    });
 });
+
+describe('cmpxchg16', function() {
+  it('method exists', () => {
+      expect(typeof cmpxchg16).toBe('function');
+  });
+
+  it('can exchange value', () => {
+    const buf = Buffer.alloc(2, 0);
+    expect(buf.readInt16LE()).toBe(0);
+    cmpxchg16(buf, 0, 1);
+    expect(buf.readInt16LE()).toBe(1);
+    cmpxchg16(buf, 1, -1);
+    cmpxchg16(buf, 1, 6);
+    expect(buf.readInt16LE()).toBe(-1);
+  });
+
+  it('does not affect adjacent memory blocks', () => {
+    const buf = Buffer.alloc(6, 0);
+
+    expect(buf.readInt16LE(0)).toBe(0);
+    expect(buf.readInt16LE(2)).toBe(0);
+    expect(buf.readInt16LE(4)).toBe(0);
+
+    const addr = [...getAddress(buf), 2];
+    cmpxchg16(addr, 0, -1);
+
+    expect(buf.readInt16LE(0)).toBe(0);
+    expect(buf.readInt16LE(2)).toBe(-1);
+    expect(buf.readInt16LE(4)).toBe(0);
+  });
+});
+
+describe('cmpxchg8', function() {
+  it('method exists', () => {
+      expect(typeof cmpxchg8).toBe('function');
+  });
+
+  it('can exchange value', () => {
+    const buf = Buffer.alloc(1, 0);
+    expect(buf.readInt8()).toBe(0);
+    cmpxchg8(buf, 0, 1);
+    expect(buf.readInt8()).toBe(1);
+    cmpxchg8(buf, 1, -2);
+    cmpxchg8(buf, 1, 6);
+    expect(buf.readInt8()).toBe(-2);
+  });
+
+  it('does not affect adjacent memory blocks', () => {
+    const buf = Buffer.alloc(3, 0);
+
+    expect(buf.readInt8(0)).toBe(0);
+    expect(buf.readInt8(1)).toBe(0);
+    expect(buf.readInt8(2)).toBe(0);
+
+    const addr = [...getAddress(buf), 1];
+    cmpxchg8(addr, 0, -1);
+
+    expect(buf.readInt8(0)).toBe(0);
+    expect(buf.readInt8(1)).toBe(-1);
+    expect(buf.readInt8(2)).toBe(0);
+  });
+});
+

@@ -60,6 +60,9 @@ libsys.syscall(SYS_write, STDOUT, buf, buf.length);
   - `call64_1`
   - `jumper`
   - `sigaction` - Executes `sigaction` system call
+  - `cmpxchg8` - Compare and exchange value at memory location
+  - `cmpxchg16` - Compare and exchange value at memory location
+  - `cmpxchg32` - Compare and exchange value at memory location
 
 ### Arguments
 

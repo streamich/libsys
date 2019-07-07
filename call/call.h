@@ -1,0 +1,11 @@
+typedef int64_t (*callback)();
+typedef int64_t (*callback1)(int64_t arg1);
+typedef int64_t (*callback2)(int64_t arg1, int64_t arg2);
+typedef int64_t (*callback3)(int64_t arg1, int64_t arg2, int64_t arg3);
+typedef int64_t (*callback4)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4);
+typedef int64_t (*callback5)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5);
+typedef int64_t (*callback6)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6);
+typedef int64_t (*callback7)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6, int64_t arg7);
+typedef int64_t (*callback8)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6, int64_t arg7, int64_t arg8);
+typedef int64_t (*callback9)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6, int64_t arg7, int64_t arg8, int64_t arg9);
+typedef int64_t (*callback10)(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4, int64_t arg5, int64_t arg6, int64_t arg7, int64_t arg8, int64_t arg9, int64_t arg10);
