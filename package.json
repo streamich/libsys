@@ -24,7 +24,7 @@
   },
   "gypfile": true,
   "devDependencies": {
-    "@types/node": "12.12.42",
+    "@types/node": "12.12.43",
     "ass-js": "2.1.1",
     "jest": "23.6.0"
   },
