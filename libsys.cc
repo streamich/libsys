@@ -28,7 +28,6 @@ namespace libsys {
     using v8::Object;
     using v8::String;
     using v8::Value;
-    using v8::Handle;
     using v8::Array;
     using v8::Integer;
     using v8::Exception;
@@ -40,10 +39,10 @@ namespace libsys {
 
     Local<Object> _exports;
 
-    Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
+    v8::Local<Array> Int64ToArray(Isolate* isolate, int64_t number) {
         int32_t lo = number & 0xffffffff;
         int32_t hi = number >> 32;
-        Handle<Array> array = Array::New(isolate, 2);
+        v8::Local<Array> array = Array::New(isolate, 2);
         array->Set(0, Integer::New(isolate, lo));
         array->Set(1, Integer::New(isolate, hi));
         return array;
@@ -450,9 +449,9 @@ namespace libsys {
 
     void jumper(uint64_t id, uint64_t data, uint64_t size) {
         Isolate* isolate = Isolate::GetCurrent();
-        Local<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
+        v8::MaybeLocal<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
 
-        Local<Function> function = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+        Local<Function> function = jumpers.ToLocalChecked()->Get(Integer::New(isolate, id)).As<Function>();
         Nan::Callback callback(function);
 
         const unsigned argc = 2;
@@ -517,14 +516,6 @@ namespace libsys {
 
     void init(Local<Object> exports) {
         _exports = exports;
-
-        Isolate* isolate = Isolate::GetCurrent();
-        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
-        curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
-
-        // auto jumperAddress = Int64ToArray(isolate, (uint64_t)(&jumper));
-        // SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
-        // SET_KEY(isolate, exports, "jumperAddress", jumperAddress);
 
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
