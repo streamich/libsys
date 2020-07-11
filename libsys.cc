@@ -355,87 +355,89 @@ namespace libsys {
             case 0:
                 return ((callback) addr)();
             case 1:
-                return ((callback1) addr)(Nan::To<int64_t>(args[0]).FromJust());
+                return ((callback1) addr)(
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust()
+                );
             case 2:
                 return ((callback2) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust()
                 );
             case 3:
                 return ((callback3) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust()
                 );
             case 4:
                 return ((callback4) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust()
                 );
             case 5:
                 return ((callback5) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust()
                 );
             case 6:
                 return ((callback6) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust(),
-                    Nan::To<int64_t>(args[5]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust()
                 );
             case 7:
                 return ((callback7) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust(),
-                    Nan::To<int64_t>(args[5]).FromJust(),
-                    Nan::To<int64_t>(args[6]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust()
                 );
             case 8:
                 return ((callback8) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust(),
-                    Nan::To<int64_t>(args[5]).FromJust(),
-                    Nan::To<int64_t>(args[6]).FromJust(),
-                    Nan::To<int64_t>(args[7]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust()
                 );
             case 9:
                 return ((callback9) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust(),
-                    Nan::To<int64_t>(args[5]).FromJust(),
-                    Nan::To<int64_t>(args[6]).FromJust(),
-                    Nan::To<int64_t>(args[7]).FromJust(),
-                    Nan::To<int64_t>(args[8]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 8).ToLocalChecked()).FromJust()
                 );
             case 10:
                 return ((callback10) addr)(
-                    Nan::To<int64_t>(args[0]).FromJust(),
-                    Nan::To<int64_t>(args[1]).FromJust(),
-                    Nan::To<int64_t>(args[2]).FromJust(),
-                    Nan::To<int64_t>(args[3]).FromJust(),
-                    Nan::To<int64_t>(args[4]).FromJust(),
-                    Nan::To<int64_t>(args[5]).FromJust(),
-                    Nan::To<int64_t>(args[6]).FromJust(),
-                    Nan::To<int64_t>(args[7]).FromJust(),
-                    Nan::To<int64_t>(args[8]).FromJust(),
-                    Nan::To<int64_t>(args[9]).FromJust()
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 8).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 9).ToLocalChecked()).FromJust()
                 );
             default:
                 Nan::ThrowError("Too many arguments.");
