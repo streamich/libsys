@@ -62,7 +62,7 @@ const int8_t TYPE_CALL = 1;         // Record specifies a regular function call 
 const int8_t TYPE_EXIT = 2;         // Tells thread to quit.
 
 inline int64_t worker_exec_syscall (int32_t worker, async_syscall* record) {
-    debug_print("~> worker_exec_syscall [worker = %x, syscall = %u, len = %x] \n", worker, record->sys, record->len);
+    // debug_print("~> worker_exec_syscall [worker = %x, syscall = %u, len = %x] \n", worker, record->sys, record->len);
     switch (record->len) {
         case 0: return syscall_0(record->sys);
         case 1: return syscall_1(record->sys, record->args[0]);
@@ -76,7 +76,7 @@ inline int64_t worker_exec_syscall (int32_t worker, async_syscall* record) {
 }
 
 int64_t worker_exec_call (int32_t worker, async_call* record) {
-    debug_print("~> worker_exec_call [worker = %x, address = %llu, len = %llx] \n", worker, record->addr, record->len);
+    // debug_print("~> worker_exec_call [worker = %x, address = %llu, len = %llx] \n", worker, record->addr, record->len);
     switch (record->len) {
         case 0: return ((callback) record->addr)();
         case 1: return ((callback1) record->addr)(record->args[0]);
@@ -95,7 +95,7 @@ int64_t worker_exec_call (int32_t worker, async_call* record) {
 
 inline void* worker_process_new_block (int32_t worker, int32_t pipe_fd, async_headers* headers) {
 start:
-    debug_print("~> start [worker = %x, lock = %x]\n", worker, headers->lock);
+    // debug_print("~> start [worker = %x, lock = %x]\n", worker, headers->lock);
     if (headers->lock == LOCK_FREE) {
         cmpxchg8(&(headers->lock), LOCK_FREE, worker);
         if (headers->lock == worker) goto process_block;
@@ -109,17 +109,17 @@ look_for_next_block:
     goto start;
 
 process_block:
-    debug_print("~> process_block [worker = %x]\n", worker);
+    // debug_print("~> process_block [worker = %x]\n", worker);
     switch (headers->type) {
         case TYPE_SYSCALL:
             ((async_result*) headers)->result = worker_exec_syscall(worker, (async_syscall*) headers);
-            write(pipe_fd, &(headers->id), sizeof(headers->id));
-            debug_print("   syscall result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
+            ((void (*)(int32_t, unsigned int*, int32_t)) write)(pipe_fd, &(headers->id), sizeof(headers->id));
+            // debug_print("   syscall result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
             break;
         case TYPE_CALL:
             ((async_result*) headers)->result = worker_exec_call(worker, (async_call*) headers);
-            write(pipe_fd, &(headers->id), sizeof(headers->id));
-            debug_print("   call result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
+            ((void (*)(int32_t, unsigned int*, int32_t)) write)(pipe_fd, &(headers->id), sizeof(headers->id));
+            // debug_print("   call result: [worker = %x, result = %lld] \n", worker, ((async_result*) headers)->result);
             break;
         case TYPE_EXIT:
             goto exit;
@@ -135,7 +135,7 @@ sleep:
 
 exit:
     atomic_increment(&(headers->left), 1);
-    debug_print("Exiting [worker = %x] \n", worker);
+    // debug_print("Exiting [worker = %x] \n", worker);
     pthread_exit(NULL);
 }
 
@@ -148,7 +148,7 @@ void* worker_start (void* arg) {
 
 int32_t create_async_pool (void* headers, uint32_t nthreads) {
     int32_t fds[2];
-    pipe(fds);
+    ((void (*)(int32_t[2])) pipe)(fds);
     for (; nthreads > 0; nthreads--) {
         pthread_t* thread = (pthread_t*) malloc(sizeof(pthread_t));
         pthread_attr_t* attr = (pthread_attr_t*) malloc(sizeof(pthread_attr_t));
@@ -158,7 +158,7 @@ int32_t create_async_pool (void* headers, uint32_t nthreads) {
         record->pipe_fd = fds[1];
         record->headers = (async_headers*) headers;
         pthread_create(thread, attr, worker_start, record);
-        debug_print("created thread [worker = %x]\n", record->worker);
+        // debug_print("created thread [worker = %x]\n", record->worker);
     }
     return fds[0];
 }

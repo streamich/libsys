@@ -28,7 +28,6 @@ namespace libsys {
     using v8::Object;
     using v8::String;
     using v8::Value;
-    using v8::Handle;
     using v8::Array;
     using v8::Integer;
     using v8::Exception;
@@ -40,12 +39,12 @@ namespace libsys {
 
     Local<Object> _exports;
 
-    Handle<Array> Int64ToArray(Isolate* isolate, int64_t number) {
+    v8::Local<Array> Int64ToArray(Isolate* isolate, int64_t number) {
         int32_t lo = number & 0xffffffff;
         int32_t hi = number >> 32;
-        Handle<Array> array = Array::New(isolate, 2);
-        array->Set(0, Integer::New(isolate, lo));
-        array->Set(1, Integer::New(isolate, hi));
+        v8::Local<Array> array = Array::New(isolate, 2);
+        array->Set(Nan::GetCurrentContext(), 0, Integer::New(isolate, lo));
+        array->Set(Nan::GetCurrentContext(), 1, Integer::New(isolate, hi));
         return array;
     }
 
@@ -119,13 +118,13 @@ namespace libsys {
                 Local<Array> arr = arg.As<Array>();
                 uint32_t arrlen = arr->Length();
 
-                int32_t lo = (int32_t) Nan::To<int32_t>(arr->Get(0)).FromJust();
-                int32_t hi = (int32_t) Nan::To<int32_t>(arr->Get(1)).FromJust();
+                int32_t lo = (int32_t) Nan::To<int32_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust();
+                int32_t hi = (int32_t) Nan::To<int32_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust();
 
                 uint64_t addr = (uint64_t) ((((int64_t) hi) << 32) | ((int64_t) lo & 0xffffffff));
 
                 if(arrlen == 3) {
-                    int32_t offset = Nan::To<int32_t>(arr->Get(2)).FromJust();
+                    int32_t offset = Nan::To<int32_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust();
                     addr += offset;
                 }
 
@@ -181,14 +180,14 @@ namespace libsys {
     void MethodSyscall(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         char len = (char) args.Length();
-        if(len > 7) isolate->ThrowException(String::NewFromUtf8(isolate, "Syscall with over 6 arguments."));
+        if(len > 7) Nan::ThrowRangeError("Syscall with over 6 arguments.");
         else args.GetReturnValue().Set(Integer::New(isolate, ExecSyscall(args)));
     }
 
     void MethodSyscall64(const FunctionCallbackInfo<Value>& args) {
         Isolate* isolate = args.GetIsolate();
         char len = (char) args.Length();
-        if(len > 7) isolate->ThrowException(String::NewFromUtf8(isolate, "Syscall with over 6 arguments."));
+        if(len > 7) Nan::ThrowRangeError("Syscall with over 6 arguments.");
         else {
             int64_t result = ExecSyscall(args);
             args.GetReturnValue().Set(Int64ToArray(isolate, result));
@@ -356,50 +355,92 @@ namespace libsys {
             case 0:
                 return ((callback) addr)();
             case 1:
-                return ((callback1) addr)(ArgToInt(arr->Get(0)));
+                return ((callback1) addr)(
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust()
+                );
             case 2:
                 return ((callback2) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust()
                 );
             case 3:
                 return ((callback3) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust()
                 );
             case 4:
                 return ((callback4) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust()
                 );
             case 5:
                 return ((callback5) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust()
                 );
             case 6:
                 return ((callback6) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust()
                 );
             case 7:
                 return ((callback7) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust()
                 );
             case 8:
                 return ((callback8) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust()
                 );
             case 9:
                 return ((callback9) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 8).ToLocalChecked()).FromJust()
                 );
             case 10:
                 return ((callback10) addr)(
-                    ArgToInt(arr->Get(0)), ArgToInt(arr->Get(1)), ArgToInt(arr->Get(2)), ArgToInt(arr->Get(3)), ArgToInt(arr->Get(4)),
-                    ArgToInt(arr->Get(5)), ArgToInt(arr->Get(6)), ArgToInt(arr->Get(7)), ArgToInt(arr->Get(8)), ArgToInt(arr->Get(9))
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 0).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 1).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 2).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 3).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 4).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 5).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 6).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 7).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 8).ToLocalChecked()).FromJust(),
+                    Nan::To<int64_t>(arr->Get(Nan::GetCurrentContext(), 9).ToLocalChecked()).FromJust()
                 );
             default:
-                isolate->ThrowException(String::NewFromUtf8(isolate, "Too many arguments."));
+                Nan::ThrowError("Too many arguments.");
                 return -1;
         }
     }
@@ -448,31 +489,28 @@ namespace libsys {
         V8_RETURN_NUM(result);
     }
 
-    void jumper(uint64_t id, uint64_t data, uint64_t size) {
-        Isolate* isolate = Isolate::GetCurrent();
-        Local<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
-        Local<Function> callback = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+    // void jumper(uint64_t id, uint64_t data, uint64_t size) {
+    //     Isolate* isolate = Isolate::GetCurrent();
+    //     v8::MaybeLocal<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
 
-        const unsigned argc = 2;
-        Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
+    //     Local<Function> function = jumpers.ToLocalChecked()->Get(Integer::New(isolate, id)).As<Function>();
+    //     Nan::Callback callback(function);
 
-        callback->Call(Null(isolate), argc, argv);
-    }
+    //     const unsigned argc = 2;
+    //     Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
 
-    void MethodJumper(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        char len = (char) args.Length();
+    //     Nan::Call(callback, argc, argv);
+    // }
 
-        Local<Function> callback = Local<Function>::Cast(args[0]);
-        const unsigned argc = 0;
-        Local<Value> argv[] = {};
+    // void MethodJumper(const FunctionCallbackInfo<Value>& args) {
+    //     Local<Function> function = Local<Function>::Cast(args[0]);
+    //     Nan::Callback callback(function);
+    
+    //     const unsigned argc = 0;
+    //     Local<Value> argv[] = {};
 
-        if (len > 1) {
-            callback->Call(args[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked(), argc, argv);
-        } else {
-            callback->Call(Null(isolate), argc, argv);
-        }
-    }
+    //     Nan::Call(callback, argc, argv);
+    // }
 
     void DLSym(const FunctionCallbackInfo<Value>& args) {
         Nan::Utf8String v8str(args[0]);
@@ -521,13 +559,6 @@ namespace libsys {
     void init(Local<Object> exports) {
         _exports = exports;
 
-        Isolate* isolate = Isolate::GetCurrent();
-        Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
-        curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
-
-        SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
-        SET_KEY(isolate, exports, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
-
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
         NODE_SET_METHOD(exports, "syscall_0",               MethodSyscall_0);
@@ -555,7 +586,7 @@ namespace libsys {
         NODE_SET_METHOD(exports, "call_1",                  MethodCall_1);
         NODE_SET_METHOD(exports, "call64_0",                MethodCall64_0);
         NODE_SET_METHOD(exports, "call64_1",                MethodCall64_1);
-        NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
+        // NODE_SET_METHOD(exports, "jumper",                  MethodJumper);
         NODE_SET_METHOD(exports, "sigaction",               MethodSigaction);
         NODE_SET_METHOD(exports, "dlsym",                   DLSym);
         NODE_SET_METHOD(exports, "__testDlsymAddr",         TestDlsymAddr);
