@@ -451,27 +451,24 @@ namespace libsys {
     void jumper(uint64_t id, uint64_t data, uint64_t size) {
         Isolate* isolate = Isolate::GetCurrent();
         Local<Object> jumpers = _exports->Get(String::NewFromUtf8(isolate, "jumpers")).As<Object>();
-        Local<Function> callback = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+
+        Local<Function> function = jumpers->Get(Integer::New(isolate, id)).As<Function>();
+        Nan::Callback callback(function);
 
         const unsigned argc = 2;
         Local<Value> argv[] = {Int64ToArray(isolate, data), Integer::New(isolate, size)};
 
-        callback->Call(Null(isolate), argc, argv);
+        Nan::Call(callback, argc, argv);
     }
 
     void MethodJumper(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = args.GetIsolate();
-        char len = (char) args.Length();
-
-        Local<Function> callback = Local<Function>::Cast(args[0]);
+        Local<Function> function = Local<Function>::Cast(args[0]);
+        Nan::Callback callback(function);
+    
         const unsigned argc = 0;
         Local<Value> argv[] = {};
 
-        if (len > 1) {
-            callback->Call(args[1]->ToObject(Nan::GetCurrentContext()).ToLocalChecked(), argc, argv);
-        } else {
-            callback->Call(Null(isolate), argc, argv);
-        }
+        Nan::Call(callback, argc, argv);
     }
 
     void DLSym(const FunctionCallbackInfo<Value>& args) {
@@ -525,8 +522,9 @@ namespace libsys {
         Local<Object> curGlobal = isolate->GetCurrentContext()->Global();
         curGlobal->Get(String::NewFromUtf8(isolate, "process")).As<Object>();
 
-        SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
-        SET_KEY(isolate, exports, "jumperAddress", Int64ToArray(isolate, (uint64_t)(&jumper)));
+        // auto jumperAddress = Int64ToArray(isolate, (uint64_t)(&jumper));
+        // SET_KEY(isolate, exports, "jumpers", Object::New(isolate));
+        // SET_KEY(isolate, exports, "jumperAddress", jumperAddress);
 
         NODE_SET_METHOD(exports, "syscall",                 MethodSyscall);
         NODE_SET_METHOD(exports, "syscall64",               MethodSyscall64);
