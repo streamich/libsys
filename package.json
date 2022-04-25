@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/node": "16.11.28",
     "ass-js": "2.1.1",
-    "jest": "27.5.1",
+    "jest": "28.0.0",
     "node-addon-api": "4.3.0",
     "node-gyp": "9.0.0"
   },
