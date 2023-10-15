@@ -1,4 +1,4 @@
-FROM ubuntu:18.10
+FROM ubuntu:cosmic-20190719
 
 RUN apt-get update -y
 RUN apt-get install -y gcc build-essential
