@@ -1,0 +1,17 @@
+name: Libsys linux CI
+on: [push]
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5.0
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - run: cd ${{ github.workspace }}
+      - run: npm i
+      - run: npm test
