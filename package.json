@@ -20,7 +20,7 @@
   },
   "main": "./build/Release/sys.node",
   "engines": {
-    "node": ">= 4.4.3"
+    "node": ">= 17.0.0"
   },
   "gypfile": true,
   "devDependencies": {
