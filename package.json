@@ -27,7 +27,7 @@
     "@types/node": "22.16.3",
     "ass-js": "2.1.1",
     "jest": "30.0.4",
-    "node-addon-api": "8.4.0",
+    "node-addon-api": "8.5.0",
     "node-gyp": "11.2.0"
   },
   "scripts": {
