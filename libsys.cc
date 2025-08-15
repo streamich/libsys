@@ -50,14 +50,14 @@ namespace libsys {
 
     inline uint64_t GetAddrArrayBuffer(Local<Object> obj) {
         Local<ArrayBuffer> ab = obj.As<ArrayBuffer>();
-        ArrayBuffer::Contents ab_c = ab->GetContents();
-        return (uint64_t)(ab_c.Data());
+        std::shared_ptr<v8::BackingStore> ab_c = ab->GetBackingStore();
+        return (uint64_t)(ab_c->Data());
     }
 
     inline uint64_t GetAddrTypedArray(Local<Object> obj) {
         Local<TypedArray> ta = obj.As<TypedArray>();
-        ArrayBuffer::Contents ab_c = ta->Buffer()->GetContents();
-        return (uint64_t)(ab_c.Data()) + ta->ByteOffset();
+        std::shared_ptr<v8::BackingStore> ab_c = ta->Buffer()->GetBackingStore();
+        return (uint64_t)(ab_c->Data()) + ta->ByteOffset();
     }
 
     inline uint64_t GetAddrUint8Array(Local<Object> obj) {
@@ -328,7 +328,10 @@ namespace libsys {
         void* addr = (void*) ArgToInt(args[0]);
         size_t size = (size_t) Nan::To<int32_t>(args[1]).FromJust();
 
-        Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, addr, size);
+        std::unique_ptr<v8::BackingStore> backing = v8::ArrayBuffer::NewBackingStore(
+                addr, size, [](void*, size_t, void*){}, nullptr);
+
+        Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, std::move(backing));
         args.GetReturnValue().Set(buf);
     }
 
